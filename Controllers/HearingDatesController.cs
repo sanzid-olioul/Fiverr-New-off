@@ -56,22 +56,37 @@ namespace LancasterCreditCardDiversion.Controllers
                 }).ToList();
 
                 var existingDates = await _hearingDatesService.GetExistingHearingDatesAsync(hearingDatesTimes!);
+                var existingSet = existingDates?.Select(d => d.ToUniversalTime()).ToHashSet() ?? new HashSet<DateTime>();
 
-                if (existingDates != null && existingDates.Count > 0)
+                var newDates = hearingDatesTimes!.Where(d => !existingSet.Contains(d.ToUniversalTime())).ToList();
+
+                if (newDates.Count > 0)
+                {
+                    await _hearingDatesService.SaveSelectedHearingDateTimes(newDates);
+                }
+
+                // Build user feedback
+                if (existingDates != null && existingDates.Count > 0 && newDates.Count > 0)
                 {
                     _commonService.SetTempData(
-                        $"Duplicate record(s) found. The following dates already exist: {string.Join(", ", existingDates)}",
+                        $"Some dates were saved successfully. Duplicate dates skipped: {string.Join(", ", existingDates)}",
+                        "warning"
+                    );
+                }
+                else if (existingDates != null && existingDates.Count > 0)
+                {
+                    _commonService.SetTempData(
+                        $"All selected dates already exist: {string.Join(", ", existingDates)}",
                         "error"
                     );
-                    return View();
                 }
-
-                var success = await _hearingDatesService.SaveSelectedHearingDateTimes(hearingDatesTimes);
-                if (success)
+                else
                 {
-                    _commonService.SetTempData("Successfully added date(s)", "success");
-                    return RedirectToAction("ListHearingDates");
+                    _commonService.SetTempData("Successfully added date(s).", "success");
                 }
+                
+                return RedirectToAction("ListHearingDates");
+                
             }
 
             _commonService.SetTempData("Failed to save hearing dates and times.", "error");

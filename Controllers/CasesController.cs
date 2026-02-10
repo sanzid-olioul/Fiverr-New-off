@@ -3,6 +3,7 @@ using LancasterCreditCardDiversion.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace LancasterCreditCardDiversion.Controllers
 {
@@ -137,7 +138,14 @@ namespace LancasterCreditCardDiversion.Controllers
          
             var caseStatusItem = caseStatusList.Find(x => x.Value == ccdpcase.CaseStatus.ToString().ToUpper());
             ViewBag.CaseStatusValue = new SelectListItem { Value = ccdpcase.CaseStatus.ToString(), Text = caseStatusItem?.Text };
-            ViewBag.HearingIdValue = new SelectListItem { Value = ccdpcase.HearingId.ToString(), Text = ccdpcase.HearingDttm };
+            //ViewBag.HearingIdValue = new SelectListItem { Value = ccdpcase.HearingId.ToString(), Text = ccdpcase.HearingDttm };
+            ViewBag.HearingIdValue = new SelectListItem
+                {
+                    Value = ccdpcase.HearingId?.ToString() ?? "",
+                    Text = ccdpcase.HearingDttm.HasValue
+                    ? ccdpcase.HearingDttm.Value.ToString("MMM dd, yyyy, h:mm tt", CultureInfo.InvariantCulture)
+                    : "Date Not Set"
+                        };
 
             await _sessionMergeService.SetCaseSessionData(ccdpcase, caseDocuments);
 
@@ -184,7 +192,14 @@ namespace LancasterCreditCardDiversion.Controllers
                 .ToList();
             ViewBag.CaseStatusValue = new SelectListItem { Value = ccdpcase.CaseStatus.ToString(), Text = ccdpcase.CaseStatus };
             ViewBag.HearingDatesData = await _commonService.GetAllHearingDatesAfterFilingDateListAsync(ccdpcase.FilingDate);
-            ViewBag.HearingIdValue = new SelectListItem { Value = ccdpcase.HearingId.ToString(), Text = ccdpcase.HearingDttm };
+            //ViewBag.HearingIdValue = new SelectListItem { Value = ccdpcase.HearingId.ToString(), Text = ccdpcase.HearingDttm };
+            ViewBag.HearingIdValue = new SelectListItem
+            {
+                    Value = ccdpcase.HearingId?.ToString() ?? "",
+                    Text = ccdpcase.HearingDttm.HasValue
+            ? ccdpcase.HearingDttm.Value.ToString("MMM dd, yyyy, h:mm tt", CultureInfo.InvariantCulture)
+            : "Date Not Set"
+                };
 
             return View(ccdpcase);
         }

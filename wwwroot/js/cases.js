@@ -637,7 +637,7 @@ if (typeof controller !== "undefined" && controller === "Cases" && action === "C
 
         let selectedHearingId = sessionStorage.getItem('selectedHearingId');
         if (selectedHearingId) {
-            grid.filterByColumn("HearingId", "equal", parseFloat(selectedHearingId));
+            grid.filterByColumn("HearingDttm", "equal", parseFloat(selectedHearingId));
         }
     });
 
@@ -733,7 +733,7 @@ if (typeof controller !== "undefined" && controller === "Cases" && action === "C
 
         if (selectedValue) {
             selectedValue = parseFloat(selectedValue);
-            grid.filterByColumn("HearingId", "equal", selectedValue);
+            grid.filterByColumn("HearingDttm", "equal", selectedValue);
         } else {
             grid.clearFiltering();
         }
@@ -783,26 +783,40 @@ if (typeof controller !== "undefined" && controller === "Cases" && action === "C
 
     function onActionComplete(args) {
         if (args.requestType === 'save') {
+            console.log("Saved row data:", args.data);
+
+            // Workaround as HearingId is null from frontend
+
+            HearingIdInt = args.data.HearingDttm;
+
+            const payload = {
+                CaseId: args.data.CaseId,
+                CourtCaseNumber: args.data.CourtCaseNumber,
+                FilingDate: args.data.FilingDate ?? null,
+                HearingId: HearingIdInt ?? null,
+                CaseStatus: args.data.CaseStatus,
+                RecordStatus: args.data.RecordStatus,
+                CaseComment: args.data.CaseComment,
+                PlaintiffName: args.data.PlaintiffName ?? null,
+                PlaintiffRepLawfirmName: args.data.PlaintiffRepLawfirmName ?? null,
+                PlaintiffRepName: args.data.PlaintiffRepName ?? null,
+                PlaintiffRep2Name: args.data.PlaintiffRep2Name ?? null,
+                DefendantName: args.data.DefendantName ?? null,
+                DefendantRepLawfirmName: args.data.DefendantRepLawfirmName ?? null,
+                DefendantRepName: args.data.DefendantRepName ?? null,
+                DefendantRep2Name: args.data.DefendantRep2Name ?? null,
+                RecordStatus: args.data.RecordStatus ?? null
+            };
+
+
             fetch(updateHearingConfInlineUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(args.data)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             })
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        showAlert('Case updated successfully');
-                        window.location.reload();
-                    } else {
-                        showAlert('Failed to update casee');
-                        window.location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('An error occurred while updating the case.');
+                    showAlert(data.success ? 'Case updated successfully' : 'Failed to update case');
                     window.location.reload();
                 });
         }
@@ -837,16 +851,20 @@ if (typeof controller !== "undefined" && controller === "Cases" && action === "C
         hearingDttmStatusDropdown = new ej.dropdowns.DropDownList({
             dataSource: hearingDatesData,
             fields: { value: 'Value', text: 'Text' },
-            value: String(args.rowData.HearingId),
+            value: args.rowData.HearingId,
             floatLabelType: 'Auto',
             allowFiltering: true
         });
         hearingDttmStatusDropdown.appendTo(elemContentHearingDttmStatus);
     }
 
+
     function readHearingDttmStatus(args) {
-        return hearingDttmStatusDropdown.value;
+        return hearingDttmStatusDropdown.value
+            ? parseInt(hearingDttmStatusDropdown.value)
+            : null;
     }
+
 
     function createRecordStatus(args) {
         elemContentRecordStatus = document.createElement('input');

@@ -55,7 +55,7 @@ namespace LancasterCreditCardDiversion.Services
                 DefendantRep2Name = caseEntity.DefendantRep2Name,
                 CaseStatus = caseEntity.CaseStatus,
                 HearingId = caseEntity.HearingId,
-                HearingDttm = hearingDate.ToString("MMM dd, yyyy hh:mm tt"),
+                HearingDttm = hearingDate,
                 CaseComment = caseComment,
                 PlaintiffRepLawfirmName = caseEntity.PlaintiffRepLawfirmName,
                 DefendantRepLawfirmName = caseEntity.DefendantRepLawfirmName
@@ -90,6 +90,17 @@ namespace LancasterCreditCardDiversion.Services
                     into advJoin
                 from adv in advJoin.DefaultIfEmpty()
 
+                let previousHearings =
+                   (from ch in _context.CaseHearingDates.AsNoTracking()
+                    join phd in _context.ConciliationHearingDates.AsNoTracking()
+                       on ch.CaseHearingDttmId equals phd.HearingId
+                    where ch.CaseId == c.CaseId
+                          && ch.RecordStatus == "A"
+                          && ch.CaseHearingDttmId != c.HearingId
+                    orderby phd.HearingDttm descending
+                    select phd.HearingDttm)
+                   .ToList()
+
                 where !isActiveCase || c.RecordStatus == "A"
 
                 orderby c.CreatedDttm descending
@@ -113,9 +124,13 @@ namespace LancasterCreditCardDiversion.Services
                     DefendantRepLawfirmName = c.DefendantRepLawfirmName ?? "None",
 
                     HearingId = c.HearingId,
-                    HearingDttm = hd != null
-                        ? hd.HearingDttm.ToString("MMM dd, yyyy, h:mm tt", CultureInfo.InvariantCulture)
-                        : "Date Not Set",
+                    HearingDttm = hd != null ? hd.HearingDttm: (DateTime?)null,
+
+                    PreviousHearingDates = previousHearings.Any()
+                        ? string.Join(", ",
+                            previousHearings.Select(d =>
+                                d.ToString("MMM dd, yyyy, h:mm tt", CultureInfo.InvariantCulture)))
+                        : "-",
 
                     CaseStatus = adv != null ? adv.Description.ToUpper() : "NEW",
                     CaseStatusCode = c.CaseStatus ?? "N",
@@ -282,18 +297,19 @@ namespace LancasterCreditCardDiversion.Services
         /// </summary>
         public async Task<bool> UpdateConciliationManagementAsync(CcdpCaseViewModel caseToUpdate)
         {
-            decimal? hearingId = null;
+            //decimal? hearingId = null;
+            decimal? hearingId = caseToUpdate.HearingId;
 
-            if (DateTime.TryParseExact(caseToUpdate.HearingDttm?.Trim(), "MMM dd, yyyy, h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime hearingDttm))
-            {
-                hearingId = await _context.ConciliationHearingDates.Where(hd => hd.HearingDttm == hearingDttm).Select(hd => hd.HearingId).FirstOrDefaultAsync();
-            }
-            else if (int.TryParse(caseToUpdate.HearingDttm, out int hearingIdNumber))
-            {
-                hearingId = hearingIdNumber;
-            }
+            //if (DateTime.TryParseExact(caseToUpdate.HearingDttm?.Trim(), "MMM dd, yyyy, h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime hearingDttm))
+            //{
+            //    hearingId = await _context.ConciliationHearingDates.Where(hd => hd.HearingDttm == hearingDttm).Select(hd => hd.HearingId).FirstOrDefaultAsync();
+            //}
+            //else if (int.TryParse(caseToUpdate.HearingDttm, out int hearingIdNumber))
+            //{
+            //    hearingId = hearingIdNumber;
+            //}
 
-            if (hearingId == 0) hearingId = null;
+            //if (hearingId == 0) hearingId = null;
 
             var appDomainValue = await _commonService.GetDomainNameAsync(caseToUpdate.CaseStatus);
             if (string.IsNullOrEmpty(appDomainValue)) return false;
@@ -301,7 +317,7 @@ namespace LancasterCreditCardDiversion.Services
             var existingCase = await _context.CcdpCases.FindAsync(caseToUpdate.CaseId);
             if (existingCase == null) return false;
 
-            var caseCode = _commonService.GetStatusCodeAsync(caseToUpdate.CaseStatus);
+            var caseCode =  _commonService.GetStatusCodeAsync(caseToUpdate.CaseStatus);
             var existingComment = await _context.CaseComments.Where(cc => cc.CaseId == existingCase.CaseId && cc.RecordStatus == "A").OrderByDescending(cc => cc.CreatedDttm).Select(cc => cc.CommentText).FirstOrDefaultAsync();
 
             if (caseToUpdate.CaseComment != null && caseToUpdate.CaseComment != existingComment && caseToUpdate.CaseComment != "No comment yet")
@@ -315,7 +331,7 @@ namespace LancasterCreditCardDiversion.Services
                 await _context.SaveChangesAsync();
             }
 
-            existingCase.CourtCaseNumber = caseToUpdate.CourtCaseNumber;
+            //existingCase.CourtCaseNumber = caseToUpdate.CourtCaseNumber;
             existingCase.FilingDate = caseToUpdate.FilingDate;
             existingCase.PlaintiffName = caseToUpdate.PlaintiffName;
             existingCase.PlaintiffRepName = caseToUpdate.PlaintiffRepName;
@@ -434,7 +450,7 @@ namespace LancasterCreditCardDiversion.Services
                 CaseId = c.CaseId,
                 CourtCaseNumber = c.CourtCaseNumber,
                 HearingId = c.HearingId,
-                HearingDttm = hearingDates.Find(hd => hd.HearingId == c.HearingId)?.HearingDttm.ToString("MMM dd, yyyy hh:mm tt") ?? "Date Not Set",
+                HearingDttm = hearingDates.Find(hd => hd.HearingId == c.HearingId)?.HearingDttm,
                 FilingDate = c.FilingDate,
                 FilingDateSearchValue = c.FilingDate.ToString("MMM dd, yyyy"),
                 PlaintiffName = c.PlaintiffName,

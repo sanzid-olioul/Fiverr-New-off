@@ -36,7 +36,7 @@ public class CcdpCaseViewModel
 
     public int? HearingId { get; set; }
 
-    public string? HearingDttm { get; set; }
+    public DateTime? HearingDttm { get; set; }
 
     public string? CaseComment { get; set; }
 
@@ -59,5 +59,6 @@ public class CcdpCaseViewModel
     public string? RecordStatusCode { get; set; }
     public string? PlaintiffRepLawfirmName { get; set; }
     public string? DefendantRepLawfirmName { get; set; }
+    public string PreviousHearingDates { get; set; } = "-";
 
 }

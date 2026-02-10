@@ -95,7 +95,8 @@ else
             <e-grid-column field="CaseId" headerText="Case ID" visible="false" width="0" showColumnMenu="false" isPrimaryKey="true"></e-grid-column>
             <e-grid-column field="CourtCaseNumber" template="#templateLinkToEdit" allowEditing="false" headerText="Court Case Number" width="240"></e-grid-column>
             <e-grid-column field="HearingId" headerText="Hearing Id" width="0" visible="false" showColumnMenu="false"></e-grid-column>
-            <e-grid-column field="HearingDttm" headerText="Hearing Date" width="200" editType="dropdownedit" edit="@(new { create = "createHearingDttmStatus", read = "readHearingDttmStatus", write = "writeHearingDttmStatus" })"></e-grid-column>
+            <e-grid-column field="HearingDttm" headerText="Hearing Date" width="200" type="date" format="MMM dd, yyyy" editType="dropdownedit" edit="@(new { create = "createHearingDttmStatus", read = "readHearingDttmStatus", write = "writeHearingDttmStatus" })"></e-grid-column> 
+            <e-grid-column field="PreviousHearingDates" headerText="Previous Hearings" width="300" allowEditing="false" allowFiltering="false" allowSorting="false"></e-grid-column>
             <e-grid-column field="CaseStatus" id="caseStatusId" headerText="Case Status" width="200" editType="dropdownedit" edit="@(new { create = "createCaseStatus", read = "readCaseStatus", write = "writeCaseStatus" })"></e-grid-column>
             <e-grid-column field="CaseComment" headerText="Case Comments" width="300" editType="textareaedit" text-align="Left" edit="@(new {create = "create", read = "read", destroy = "destroy", write = "write"})"></e-grid-column>
             <e-grid-column field="FilingDate" headerText="Filing Date" width="150" format="MMM dd, yyyy" editType="datepickeredit"></e-grid-column>
@@ -129,6 +130,7 @@ else
     var updateHearingConfInlineUrl = '@Url.Action("UpdateConciliationManagementInline", "Cases")';
 
 </script>
+
 
 <style id="dynamic-styles">
     
