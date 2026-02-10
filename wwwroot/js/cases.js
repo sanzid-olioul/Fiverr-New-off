@@ -15,7 +15,8 @@ if (typeof controller !== "undefined" && controller === "Cases" && action === "I
         const caseid = args.rowData.CaseId;
 
         if (args.commandColumn.type === 'ViewDocs') {
-            getDocumentsForCase(caseid);
+            //getDocumentsForCase(caseid);
+            window.location.href = `/Cases/SetCase/${caseid}`;
         }
 
         if (args.commandColumn.type === 'Comment') {

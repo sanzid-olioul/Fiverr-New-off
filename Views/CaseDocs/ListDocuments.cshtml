@@ -31,7 +31,8 @@ else
         <h4>Document Viewer</h4>
         <button onclick="closePdfViewer()" class="btn btn-secondary">Close</button>
     </div>
-    <ejs-pdfviewer id="pdfViewer" serviceUrl="https://ej2services.syncfusion.com/production/web-services/api/pdfviewer" style="height:calc(100vh - 200px);"></ejs-pdfviewer>
+    @* <ejs-pdfviewer id="pdfViewer" serviceUrl="https://ej2services.syncfusion.com/production/web-services/api/pdfviewer" style="height:calc(100vh - 200px);"></ejs-pdfviewer> *@
+    <ejs-pdfviewer id="pdfViewer" style="height:calc(100vh - 200px);"></ejs-pdfviewer>
 </div>
 
 
@@ -125,7 +126,7 @@ else
    function openPdfViewer(docId) {
        const modal = document.getElementById('pdfViewerModal');
        const pdfViewer = document.getElementById('pdfViewer').ej2_instances[0];
-       const url = viewDocumentUrl + '/' + docId;
+        const url = window.location.origin + viewDocumentUrl + '/' + docId;
        
        modal.style.display = 'block';
        pdfViewer.load(url, null);
@@ -212,4 +213,4 @@ else
         overflow-y: auto;
     }
 
-</style></style> 
+</style>

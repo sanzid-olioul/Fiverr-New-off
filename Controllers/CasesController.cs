@@ -144,6 +144,25 @@ namespace LancasterCreditCardDiversion.Controllers
             return View(ccdpcase);
         }
 
+
+
+        /// <summary>
+        /// Case Session set Redirect
+        /// </summary>
+        [HttpGet("Cases/SetCase/{caseId}")]
+        public async Task<IActionResult> SetCase(string caseId)
+        {
+            if (string.IsNullOrEmpty(caseId)) return NotFound();
+
+            var ccdpcase = await _casesService.GetCaseByIdAsync(caseId);
+            if (ccdpcase == null) return NotFound();
+
+            var caseDocuments = await _casesService.GetCaseDocsByIdAsync(caseId);
+            await _sessionMergeService.SetCaseSessionData(ccdpcase, caseDocuments);
+
+            return RedirectToAction("ListDocuments", "CaseDocs");
+        }
+
         /// <summary>
         /// Returns the view for editing a case based on the provided ID.
         /// </summary>
