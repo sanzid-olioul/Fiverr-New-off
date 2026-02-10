@@ -1,0 +1,73 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.ConciliationHearingDateViewModel>
+
+@{
+    ViewData["Title"] = "List Hearing Dates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType
+    " role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+<div class="content">
+
+    @{
+        List<object> GridCommands = new List<object>();
+        GridCommands.Add(new 
+            { type = "Edit", 
+            buttonOption = new 
+            { 
+                iconCss = "e-icons e-edit btnEdit", 
+                cssClass = "e-flat",
+            } });
+        GridCommands.Add(new 
+            { type = "Delete", 
+            buttonOption = new 
+            { 
+                iconCss = "e-icons e-delete btnDelete", 
+                cssClass = "e-flat" 
+            } });
+    }
+
+    @{
+
+        List<object> filterColumns = new List<object>();
+
+       filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+
+    }
+    <div style="display:flex;justify-content: space-between; align-items: center;">
+        <h1>All Conciliation Hearing Dates</h1>
+        <a asp-action="SelectHearingDates" class="btn btn-primary">Add Dates</a>
+    </div>
+
+    <ejs-grid id="Grid" dataSource="@Model" toolbarClick="toolbarClick" excelQueryCellInfo="excelExportFormat" allowExcelExport="true" toolbar="@(new List<string>() { "Search", "Edit", "Delete", "Cancel", "Update", "ExcelExport" })" actionComplete="onActionComplete" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true">
+         <e-grid-filterSettings type="Excel" columns="filterColumns"></e-grid-filterSettings>
+           <e-grid-editSettings allowDeleting="true" allowEditing="true"></e-grid-editSettings>
+        <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+        <e-grid-columns>
+            <e-grid-column type="checkbox" width="10"></e-grid-column>
+            <e-grid-column field="HearingDttm" headerText="Hearing Date" width="150" format="MMM dd, yyyy hh:mm a" editType="datetimepickeredit"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="150"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+</div>
+
+<script>
+    var updateHearingDateTimeUrl = '@Url.Action("UpdateHearingDateTime", "HearingDates")';
+    var deleteConfirmedUrl = '@Url.Action("DeleteConfirmed", "HearingDates")';
+</script>
+
+<style>
+     .e-grid .e-rowcell {
+        text-align: left !important; /* Ensures all cell text is aligned left */
+    }
+</style>

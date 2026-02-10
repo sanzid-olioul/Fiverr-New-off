@@ -1,0 +1,83 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Court Diversion Eligibility Screener - Built by AAA</title>
+
+    <link rel="icon" href="~/favicon.ico" type="image/x-icon" />
+
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <!-- Syncfusion Styles -->
+    <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/25.1.37/material3.css" />
+    <!-- Syncfusion PDF Viewer styles -->
+    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/22.2.38/ej2-pdfviewer.min.css" />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="header-section dock-menu" id="header">
+        <partial name="_HeaderTitle" />
+    </div>
+
+    @{
+        var username = HttpContextAccessor.HttpContext?.Session.GetString("Username");
+        var syncfusionKey = Configuration["Syncfusion:LicenseKey"];
+        if (username != null)
+        {
+            <partial name="_MenuSidebar" />
+        }
+    }
+
+    <div id="maintext" class="main-content">
+        <div>
+            @RenderBody()
+        </div>
+    </div>
+
+    <partial name="_Footer" />
+
+    <!-- Script Routing Info -->
+    <script>
+        const controller = '@ViewContext.RouteData.Values["controller"]';
+        const action = '@ViewContext.RouteData.Values["action"]';
+    </script>
+
+    <!-- External JS -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
+    <!-- Syncfusion PDF Viewer script (client) -->
+    <script src="https://cdn.syncfusion.com/ej2/32.1.19/dist/ej2.min.js"></script>
+    <script src="https://cdn.syncfusion.com/ej2/32.1.19/dist/ej2-pdfviewer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Custom Scripts -->
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/common.js" asp-append-version="true"></script>
+    <script src="~/js/cases.js" asp-append-version="true"></script>
+    <script src="~/js/template.js" asp-append-version="true"></script>
+    <script src="~/js/docs.js" asp-append-version="true"></script>
+    <script src="~/js/hearingdates.js" asp-append-version="true"></script>
+    <script src="~/js/comments.js" asp-append-version="true"></script>
+    <script src="~/js/requests.js" asp-append-version="true"></script>
+
+    <ejs-scripts></ejs-scripts>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

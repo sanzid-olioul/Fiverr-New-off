@@ -1,0 +1,63 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.CaseDocumentViewModel
+@using LancasterCreditCardDiversion.Services
+
+@{
+    ViewData["Title"] = "Edit Document";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div class="content">
+    <div class="row">
+    <h1>Edit Document</h1>
+        <div class="col-md-6">
+        <form asp-action="EditDocument" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="DocId" />
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox id="name" type="text" placeholder="Document Name" required="required" floatLabelType=Auto value="@CommonService.FileNameWithoutExtension(Model.Name)"></ejs-textbox>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3 validation-gap">
+            <ejs-dropdownlist id="docTypeDropdown" name="DocType" required="required" floatLabelType=Auto dataSource="@ViewBag.DocTypeData" value="@Model.DocType" placeholder="Select Document Type">
+                <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+            <span asp-validation-for="DocType" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-dropdownlist id="recordStatusDropdown" name="RecordStatus" required="required" dataSource=@ViewBag.RecordStatusData value="@Model.RecordStatus" placeholder="Select Status of the Document" floatLabelType=Auto>
+                <e-dropdownlist-fields text=Text value=Value></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+            <span asp-validation-for="RecordStatus" class="text-danger"></span>
+        </div>
+        <br>
+        <div class="form-group mb-3 d-flex justify-content-between">
+            <a asp-action="ListDocuments" class="btn btn-secondary">Back to List</a>
+            <input type="submit" value="Update" class="btn btn-primary" />
+        </div> 
+    </form>
+    </div>
+    </div>
+</div>
+
+<style>
+    .content {
+        margin-top: 130px !important;
+    }
+
+</style>

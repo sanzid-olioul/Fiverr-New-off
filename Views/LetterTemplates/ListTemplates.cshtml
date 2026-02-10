@@ -1,0 +1,77 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.LetterTemplateViewModel>
+
+@{
+    ViewData["Title"] = "Letter Templates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType
+    " role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+@{
+    List<object> GridCommands = new List<object>();
+    GridCommands.Add(new { type = "DownloadAsWord", buttonOption = new { iconCss = "e-icons e-download btnDownload", cssClass = "e-flat" } });
+    GridCommands.Add(new { type = "Edit", buttonOption = new { iconCss = "e-icons e-edit btnEdit", cssClass = "e-flat" } });
+    GridCommands.Add(new { type = "Delete", buttonOption = new { iconCss = "e-icons e-delete btnDelete", cssClass = "e-flat" } });
+}
+
+@{
+
+    List<object> filterColumns = new List<object>();
+
+    filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+
+}
+<div class="content">
+    <div style="display:flex;justify-content: space-between; align-items: center;">
+        <h1>Letter Templates</h1>
+        <a asp-action="CreateTemplate" class="btn btn-primary">Create New Template</a>
+    </div>
+
+    <ejs-grid id="TemplateGrid" dataSource="@Model" toolbarClick="toolbarClick" allowExcelExport="true" allowPaging="true" allowSorting="true" commandClick="commandClick" frozenColumns="1" toolbar="@(new List<string>() { "Search", "ExcelExport" })" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true">
+        <e-grid-filterSettings type="Excel" columns="filterColumns">
+        </e-grid-filterSettings>
+        <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+        <e-grid-columns>
+            <e-grid-column field="Name" headerText="Template Name" width="250" textAlign="Left"></e-grid-column>
+            <e-grid-column field="DocType" headerText="Document Type" width="150" textAlign="Left"></e-grid-column>
+            <e-grid-column field="PublishedDate" headerText="Published Date" width="150" format="MMM dd, yyyy"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="120"></e-grid-column>
+            <e-grid-column headerText="Actions" width="200" commands="GridCommands" freeze="Right" textAlign="Left"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+    <!-- Hidden Form for Deletion -->
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteConfirmed", "LetterTemplates")" style="display: none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="tempId" id="tempId" />
+    </form>
+
+</div>
+
+<script>
+    var downloadWordTemplateUrl = '@Url.Action("DownloadWordTemplate", "LetterTemplates")'; 
+    var editTemplateUrl = '@Url.Action("EditTemplate", "LetterTemplates")';
+    var deleteConfirmedUrl = '@Url.Action("DeleteConfirmed", "LetterTemplates")';
+</script>
+
+<style>
+
+    .e-grid .e-rowcell {
+        text-align: left !important; /* Ensures all cell text is aligned left */
+    }
+
+     .e-grid.e-default:not(.e-rtl) tr td:first-child:not(.e-xlsel-left-border,.e-fixedfreeze.e-freezeleftborder,.e-addfreezefirstchildborder), .e-grid.e-default:not(.e-rtl) tr th.e-headercell:first-child:not(.e-firstcell):not(.e-headercell.e-frozen-left-border), .e-grid.e-default:not(.e-rtl) tr th.e-filterbarcell:first-child:not(.e-filterbarcell.e-frozen-left-border) {
+         border-left-width: 0;
+         height:70px;
+     }
+
+</style>

@@ -1,0 +1,232 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CcdpCaseViewModel>
+
+@{
+    ViewData["Title"] = "Cases";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div class="content cases-page-content">
+
+    @{
+        List<object> GridCommands = new List<object>();
+        GridCommands.Add(new
+        {
+            type = "ViewDocs",
+            buttonOption = new
+            {
+                iconCss = "e-icons e-eye btnViewDocs",
+                cssClass = "e-flat"
+            }
+        });
+        GridCommands.Add(new
+        {
+            type = "Comment",
+            buttonOption = new
+            {
+                iconCss = "e-icons e-comment-show btnComment",
+                cssClass = "e-flat"
+            }
+        });
+        GridCommands.Add(new
+        {
+            type = "Delete",
+            buttonOption = new
+            {
+                iconCss = "e-icons e-delete btnDelete",
+                cssClass = "e-flat"
+            }
+        });
+    }
+
+    @{
+
+        List<object> filterColumns = new List<object>();
+
+        filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+    }
+
+    <div style="display:flex;justify-content: space-between; align-items: center;">
+        <h1>Cases</h1>
+        <a asp-action="CreateCase" class="btn btn-primary">Create New Case</a>
+    </div>
+
+    <!-- Comments Modal -->
+    <div id="commentsModal" style="display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);overflow:auto;">
+        <div style="background-color:#fefefe;margin:5% auto;padding:20px;border:1px solid #888;width:80%;max-width:800px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);position:relative;">
+            <span class="close-btn" onclick="closeModal()" style="position:absolute;right:15px;top:15px;font-size:28px;font-weight:bold;color:#666;cursor:pointer;z-index:10001;">&times;</span>
+            <h3 style="margin-top:0;margin-bottom:20px;">Comments</h3>
+            <div id="modalCommentsContent">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom:2px solid #ddd;">
+                            <th style="font-size: 14px; text-align: left;padding:10px;">User</th>
+                            <th style="font-size: 14px; text-align: left;padding:10px;">Comment</th>
+                            <th style="font-size: 14px; text-align: left;padding:10px;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commentsTableBody">
+                        <!-- Comments will be populated here -->
+                    </tbody>
+                </table>
+                <div id="noCommentsMessage" style="display: none;font-size: 14px;padding:20px;text-align:center;color:#666;">No comments available.</div>
+            </div>
+            <br />
+        </div>
+    </div>
+
+    <!-- Documents Modal -->
+    <div id="documentsModal" style="display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);overflow:auto;">
+        <div style="background-color:#fefefe;margin:5% auto;padding:20px;border:1px solid #888;width:80%;max-width:800px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);position:relative;">
+            <span class="close-btn" onclick="closeDocumentsModal()" style="position:absolute;right:15px;top:15px;font-size:28px;font-weight:bold;color:#666;cursor:pointer;z-index:10001;">&times;</span>
+            <h3 style="margin-top:0;margin-bottom:20px;">Case Documents</h3>
+            <div id="modalDocumentsContent">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom:2px solid #ddd;">
+                            <th style="font-size: 14px; text-align: left;padding:10px;">Document Name</th>
+                            <th style="font-size: 14px; text-align: left;padding:10px;">Type</th>
+                            <th style="font-size: 14px; text-align: left;padding:10px;">Date</th>
+                            <th style="font-size: 14px; text-align: left;padding:10px;width:80px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsTableBody">
+                        <!-- Documents will be populated here -->
+                    </tbody>
+                </table>
+                <div id="noDocumentsMessage" style="display: none;font-size: 14px;padding:20px;text-align:center;color:#666;">No documents available.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal (Simple Iframe Approach) -->
+    <div id="pdfViewerModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.85);padding:20px;box-sizing:border-box;">
+        <div style="position:relative;background:#fff;width:100%;max-width:1400px;height:100%;max-height:calc(100vh - 40px);margin:0 auto;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.5);display:flex;flex-direction:column;">
+            <div style="position:relative;padding:15px;background:#f8f9fa;border-bottom:1px solid #dee2e6;flex-shrink:0;">
+                <h4 style="margin:0;display:inline-block;">Document Viewer</h4>
+                <button onclick="closePdfViewer()" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);border:0;background:#dc3545;color:#fff;font-size:20px;cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-weight:bold;">&times;</button>
+            </div>
+            <iframe id="pdfViewerFrame" src="" style="width:100%;height:100%;border:0;background:#fff;display:block;flex:1;"></iframe>
+        </div>
+    </div>
+
+
+    <ejs-grid id="Grid" dataSource="@Model" commandClick="commandClick" allowReordering="true" allowRowDragAndDrop="true" toolbarClick="toolbarClick" recordClick="recordClick" frozenColumns="1" toolbar="@(new List<string>() { "Search", "ExcelExport" })" allowExcelExport="true" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true">
+        <e-grid-filterSettings type="Excel" columns="filterColumns">
+        </e-grid-filterSettings>
+        <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+        <e-grid-columns>
+            <e-grid-column field="DefendantName" headerText="Defendant Name" width="150"></e-grid-column>
+            <e-grid-column field="HearingDttm" headerText="Hearing Date" width="200" format="MMM dd, yyyy"></e-grid-column>
+            <e-grid-column field="CourtCaseNumber" headerText="Court Case Number" width="130"></e-grid-column>
+            <e-grid-column field="FilingDate" headerText="Filing Date" width="150" format="MMM dd, yyyy"></e-grid-column>
+            <e-grid-column field="CaseStatus" headerText="Case Status" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffName" headerText="Plaintiff Name" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRepLawfirmName" headerText="Plaintiff Rep Law Firm Name" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRepName" headerText="Plaintiff Rep 1" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRep2Name" headerText="Plaintiff Rep 2" width="150"></e-grid-column>
+            <e-grid-column field="DefendantRepLawfirmName" headerText="Defendant Rep Law Firm Name" width="150"></e-grid-column>
+            <e-grid-column field="DefendantRepName" headerText="Defendant Rep 1" width="150"></e-grid-column>
+            <e-grid-column field="DefendantRep2Name" headerText="Defendant Rep 2" width="150"></e-grid-column>
+            <e-grid-column field="CaseComment" headerText="Latest Comment" width="300"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="150" visible="false"></e-grid-column>
+            <e-grid-column field="Actions" headerText="Actions" width="150" commands="GridCommands" freeze="Right"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteConfirmed", "Cases")" style="display: none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="caseId" id="caseId" />
+    </form>
+
+
+</div>
+
+
+<script>
+    
+    //All functions in cases.js
+    const viewCaseUrl = '@Url.Action("ViewCase", "Cases")';
+    const deleteUrl = '@Url.Action("DeleteConfirmed", "Cases")';
+    const caseCommentsUrl = '@Url.Action("GetCommentForModal", "CaseComments")';
+    const getDocumentsUrl = '@Url.Action("GetDocumentsForCase", "Cases")';
+    const viewDocumentUrl = '@Url.Action("ViewDocument", "CaseDocs")';
+    const downloadDocumentUrl = '@Url.Action("DownloadDocument", "CaseDocs")';
+
+</script>
+
+<style>
+
+    /* Ensure the content div takes full viewport height for proper modal overlay */
+    .cases-page-content {
+        min-height: 100vh;
+        position: relative;
+    }
+
+    #Grid .e-row {
+        cursor: pointer;
+    }
+
+    .e-grid .e-rowcell {
+        text-align: left !important; /* Ensures all cell text is aligned left */
+    }
+
+    .btnViewDocs::before {
+        content: '\e345'; /* Eye icon */
+    }
+    
+    /* Additional styling for modal table rows */
+    #documentsTableBody tr,
+    #commentsTableBody tr {
+        border-bottom: 1px solid #ddd;
+    }
+    
+    #documentsTableBody tr:hover,
+    #commentsTableBody tr:hover {
+        background-color: #f5f5f5;
+    }
+    
+    #documentsTableBody td,
+    #commentsTableBody td {
+        padding: 10px;
+    }
+    
+    /* Tiny icon-only buttons */
+    .doc-action-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 4px 6px;
+        font-size: 16px;
+        color: #0d6efd;
+        transition: all 0.2s;
+        border-radius: 4px;
+    }
+    
+    .doc-action-btn:hover {
+        background: #e7f1ff;
+        transform: scale(1.1);
+    }
+    
+    .doc-action-btn.download {
+        color: #6c757d;
+    }
+    
+    .doc-action-btn.download:hover {
+        background: #f8f9fa;
+        color: #495057;
+    }
+</style>

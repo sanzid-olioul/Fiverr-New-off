@@ -1,0 +1,163 @@
+﻿@* @model IEnumerable<LancasterCreditCardDiversion.ViewModels.EligibilityCheckRequestViewModel> *@
+
+@model IEnumerable<LancasterCreditCardDiversion.ViewModels.ResponsesApiRequestsViewModel>
+
+@{
+    ViewData["Title"] = "OpenAI Requests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div id="overlay" class="overlay" style="display: none;"></div>
+<div id="showModal" class="popup-alert-custom popup-alert-info" style="display: none;" role="alert">
+    <button class="close-btn" onclick="closeModal()">&times;</button>
+    <span id="modalMessage"></span>
+</div>
+
+<div class="content">
+ 
+    <ejs-grid id="RequestGrid" dataSource="@Model" showColumnMenu="true" allowFiltering="true" allowSelection="true" allowTextWrap="true" allowResizing="true" allowPaging="true" allowSorting="true" toolbarTemplate="#template">
+                <e-grid-filterSettings type="Excel"></e-grid-filterSettings>
+                <e-grid-pageSettings pageCount="5" pageSize="12" pageSizes="true" />
+                    <e-grid-columns>
+                         <e-grid-column field="EligibilityCheckStatus" headerText="Status" width="100"></e-grid-column>
+                         <e-grid-column field="DocumentNames" headerText="Doc Name(s)" width="200"></e-grid-column>
+                         <e-grid-column field="CreatedDttm" headerText="Date" width="100" format="MMM dd, yyyy hh:mm a"></e-grid-column>
+                         <e-grid-column headerText="Results" width="150" template="#resultsTemplate"></e-grid-column>
+                    </e-grid-columns>
+            </ejs-grid>
+
+    <div id="template">
+        <ejs-toolbar id="defaultToolbar" clicked="clickHandler">
+            <e-toolbar-items>
+                <e-toolbar-item id="queue" prefixIcon="e-thumbnail" text="Queue (@ViewBag.QueueCount)"></e-toolbar-item>
+                <e-toolbar-item id="refresh" prefixIcon="e-refresh" text="Refresh"></e-toolbar-item>
+
+            </e-toolbar-items>
+        </ejs-toolbar>
+    </div>
+
+</div>
+
+<script id="documentsTemplate" type="text/x-template">
+     ${if(DocumentNames && DocumentNames.length > 0)}
+        ${for (var i = 0; i < DocumentNames.length; i++)}
+             <span>${DocumentNames[i]}</span><br/>
+        ${/for}
+    ${else}
+         <span> No Documents Found </span>
+    ${/if}
+
+</script>
+
+
+<script id="resultsTemplate" type="text/x-template">
+    <span>
+        ${if(IsChecked)}
+            @* <span onclick="viewResult(${JSON.stringify(ThreadId)})" style="cursor: pointer; color: blue; text-decoration: underline;">View Results</span> *@
+            <span onclick="viewResult(${CaseId}, ${ReqId})" style="cursor: pointer; color: blue; text-decoration: underline;">View Results</span>
+        ${else}
+            <span style="color: gray;">Not Checked</span>
+        ${/if}
+    </span>
+</script>
+<script>
+    // async function viewResult(threadId) {
+    //     try {
+    //         const response = await fetch(`/EligibilityCheckRequests/AIResponse/${threadId}`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             }
+    //         });
+    //         const data = await response.json();
+    //         if (data.success) {
+    //             showModal(`Results: ${data.results}`);
+    //             const formattedResults = formatResults(data.results, data.docNames);
+    //             showModal(formattedResults);
+    //         } else {
+    //             showModal('No results found.');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //         showModal('An error occurred while fetching results.');
+    //     }
+    // }
+
+    async function viewResult(caseId, reqId) {
+        try {
+            const response = await fetch(`/EligibilityCheckRequests/AIResponse/${caseId}/${reqId}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const formattedResults = formatResults(data.response, data.documentNames);
+                showModal(formattedResults);
+            } else {
+                showModal('No results found.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showModal('An error occurred while fetching results.');
+        }
+    }
+
+     window.addEventListener('click', function (event) {
+        const modal = document.getElementById('showModal');
+        const overlay = document.getElementById('overlay');
+
+        if (modal.style.display === 'block' && !modal.contains(event.target) && !event.target.closest('.popup-modal')) {
+            closeModal();
+        }
+    });
+
+</script>
+
+<style>
+      #template{
+        text-align:left;
+    }
+
+    .analysis-header {
+        font-size: 24px; /* Adjust size as needed */
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-family: "Inter", sans-serif;
+    }
+
+    .doc-name {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-family: "Inter", sans-serif;
+    }
+
+    #maintext.main-content {
+        padding: 0px !important;
+    }
+
+    .content {
+        text-align: center;
+        font-size: 24px;
+        color: #1784c7;
+        height: 100vh;
+        margin-top: 120px !important;
+        overflow-y: auto;
+    }
+
+
+</style>

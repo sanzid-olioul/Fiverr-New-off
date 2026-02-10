@@ -1,0 +1,143 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CcdpCaseViewModel>
+
+@{
+    ViewData["Title"] = "Conciliation Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div id="customAlert" class="popup-alert popup-alert-info" style="display: none;" role="alert">
+        <button class="close-btn" onclick="closeAlert()">&times;</button>
+        <span id="alertMessage"></span>
+</div>
+
+
+@{
+    var StatusDropDownList = new Syncfusion.EJ2.DropDowns.DropDownList()
+            {
+                DataSource = ViewBag.RecordStatusData,
+                Query = "new ej.data.Query()",
+                Fields = new Syncfusion.EJ2.DropDowns.DropDownListFieldSettings() { Value = "Value", Text = "Text" },
+                AllowFiltering = true
+            };
+
+    var CaseStatusDropDownList = new Syncfusion.EJ2.DropDowns.DropDownList()
+            {
+                DataSource = ViewBag.CaseStatusData,
+                Query = "new ej.data.Query()",
+                Fields = new Syncfusion.EJ2.DropDowns.DropDownListFieldSettings() { Value = "Value", Text = "Text" },
+                AllowFiltering = true
+            };
+
+    var HearingDateDropDownList = new Syncfusion.EJ2.DropDowns.DropDownList()
+            {
+                DataSource =  ViewBag.HearingDatesData,
+                Query = "new ej.data.Query()",
+                Fields = new Syncfusion.EJ2.DropDowns.DropDownListFieldSettings() { Value = "Value", Text = "Text" },
+                AllowFiltering = true,
+            };
+
+}
+
+
+<div class="content">
+
+    @{
+
+        List<object> filterColumns = new List<object>();
+
+       filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+
+    }
+
+    <h1>Conciliation Management</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <ejs-dropdownlist id="hearingId" dataSource="@ViewBag.HearingDatesData" change="onFilterChange" placeholder="Select Hearing Date">
+                <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+        </div>
+
+        <div class="col-md-6">
+            <div>
+                <label for="toggleRowColor">Show/Hide Color</label>
+                <ejs-switch id="toggleRowColor" checked="true" change="onToggleRowColoring"></ejs-switch>
+            </div>
+        </div>
+    </div>
+ 
+    @{
+        var dropDownList = new Syncfusion.EJ2.DropDowns.DropDownList() { AllowFiltering = true };
+    }
+    <br />
+   
+    <ejs-grid id="Grid" dataSource="@Model" toolbarClick="toolbarClick" allowRowDragAndDrop="true" allowReordering="true" rowDataBound="rowDataBound" excelQueryCellInfo="onExcelQueryCellInfo" toolbar="@(new List<string>() { "Search", "Edit", "Update" , "Cancel", "ExcelExport", "WordExport" })" created="created" excelExportComplete="excelExportComplete" allowExcelExport="true" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true"
+              actionComplete="onActionComplete" allowWordExport="true">
+         <e-grid-filterSettings type="Excel" columns="filterColumns">
+        </e-grid-filterSettings>
+        <e-grid-editSettings allowEditing="true" mode="Normal"></e-grid-editSettings>
+
+        <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+        <e-grid-columns>
+            <e-grid-column field="CaseId" headerText="Case ID" visible="false" width="0" showColumnMenu="false" isPrimaryKey="true"></e-grid-column>
+            <e-grid-column field="CourtCaseNumber" template="#templateLinkToEdit" allowEditing="false" headerText="Court Case Number" width="240"></e-grid-column>
+            <e-grid-column field="HearingId" headerText="Hearing Id" width="0" visible="false" showColumnMenu="false"></e-grid-column>
+            <e-grid-column field="HearingDttm" headerText="Hearing Date" width="200" editType="dropdownedit" edit="@(new { create = "createHearingDttmStatus", read = "readHearingDttmStatus", write = "writeHearingDttmStatus" })"></e-grid-column>
+            <e-grid-column field="CaseStatus" id="caseStatusId" headerText="Case Status" width="200" editType="dropdownedit" edit="@(new { create = "createCaseStatus", read = "readCaseStatus", write = "writeCaseStatus" })"></e-grid-column>
+            <e-grid-column field="CaseComment" headerText="Case Comments" width="300" editType="textareaedit" text-align="Left" edit="@(new {create = "create", read = "read", destroy = "destroy", write = "write"})"></e-grid-column>
+            <e-grid-column field="FilingDate" headerText="Filing Date" width="150" format="MMM dd, yyyy" editType="datepickeredit"></e-grid-column>
+            <e-grid-column field="PlaintiffName" headerText="Plaintiff Name" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRepLawfirmName" headerText="Plaintiff Law Firm Name" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRepName" headerText="Plaintiff Rep One" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRep2Name" headerText="Plaintiff Rep Two" width="150" visible="false"></e-grid-column>
+            <e-grid-column field="DefendantName" headerText="Defendant Name" width="150"></e-grid-column>
+            <e-grid-column field="DefendantRepLawfirmName" headerText="Defendant Law Firm Name" width="150"></e-grid-column>
+            <e-grid-column field="DefendantRepName" headerText="Defendant Rep One" width="150" visible="false"></e-grid-column>
+            <e-grid-column field="DefendantRep2Name" headerText="Defendant Rep Two" width="150" visible="false"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="150" editType="dropdownedit" edit="@(new { create = "createRecordStatus", read = "readRecordStatus", write = "writeRecordStatus" })"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+
+</div>
+
+<script id="templateLinkToEdit" type="text/x-template">
+    <a href='@Url.Action("ViewCase", "Cases")/${CaseId}' style="color:#500394;">
+        ${CourtCaseNumber} ${DefendantName}
+    </a>
+</script>
+
+<script>
+  
+    var caseStatusData = @Html.Raw(ViewBag.CaseStatusData);
+    var hearingDatesData =  @Html.Raw(ViewBag.HearingDatesData);
+    var recordStatusData = @Html.Raw(ViewBag.RecordStatusData);
+    var caseStatusColors = @Html.Raw(ViewBag.CaseStatusColors);
+    var updateHearingConfInlineUrl = '@Url.Action("UpdateConciliationManagementInline", "Cases")';
+
+</script>
+
+<style id="dynamic-styles">
+    
+    .e-grid .e-rowcell {
+        text-align: left !important; /* Ensures all cell text is aligned left */
+    }
+
+    .e-grid .e-editedrow .e-input-group input.e-input, .e-grid .e-editedrow .e-input-group.e-control-wrapper input.e-input, .e-grid .e-addedrow .e-input-group input.e-input, .e-grid .e-addedrow .e-input-group.e-control-wrapper input.e-input {
+        min-height: 60px !important;
+    }
+
+</style>

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CaseHistoryViewModel>
+
+@{
+    ViewData["Title"] = "Case History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+
+
+    @{
+
+        List<object> filterColumns = new List<object>();
+
+        filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+
+    }
+
+    <ejs-grid id="Grid" dataSource="@Model" toolbar="@(new List<string>() { "Search" })" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true">
+        <e-grid-filterSettings type="Excel" columns="filterColumns"></e-grid-filterSettings>
+        <e-grid-pagesettings pageSize="7"></e-grid-pagesettings>
+        <e-grid-columns>
+            <e-grid-column field="CaseId" headerText="Case ID" width="0" visible="false"></e-grid-column>
+            <e-grid-column field="EventType" headerText="Event Type" width="150"></e-grid-column>
+            <e-grid-column field="Description" headerText="Description" width="250"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="150"></e-grid-column>
+            <e-grid-column field="EventDate" headerText="Modified Date" width="150" format="MMM dd, yyyy hh:mm a"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+</div>
+
+<style>
+    .content{
+        margin-top:130px !important;
+    }
+</style>

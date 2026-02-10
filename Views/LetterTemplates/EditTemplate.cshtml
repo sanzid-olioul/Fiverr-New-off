@@ -1,0 +1,50 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.LetterTemplateViewModel
+
+@{
+    ViewData["Title"] = "Edit Letter Template";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+
+    <h1>Edit Letter Template</h1>
+    <form asp-action="EditTemplate" id="editTemplate" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="LetterTemplateId" />
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox type="text" class="form-control" id="Name" name="name" required="required" floatLabelType="Auto" placeholder="Template Name" value="@Model.Name"></ejs-textbox>
+            <span asp-validation-for="Name" class="text-danger custom-label"></span>
+        </div>
+        <br />
+        <div class="form-group mb-3 validation-gap">
+            <ejs-dropdownlist id="docTypeDropdown" name="docType" dataSource="@ViewBag.DocTypeData" required="required" floatLabelType="Auto" value="@ViewBag.DocTypeValue.Value" asp-for="DocType" placeholder="Select Document Type">
+                <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+            <span asp-validation-for="DocType" class="text-danger"></span>
+        </div>
+        <br />
+        <div class="form-group mb-3 validation-gap">
+            <label for="TemplateFile" required="required">Upload a Template Word Document (.docx) to Replace the Existing Template</label>
+            <ejs-uploader type="file" class="form-control" id="TemplateFile" name="templateFile" floatLabelType="Auto" accept=".docx" placeholder="Re-Upload Template File (.docx)"></ejs-uploader>
+        </div>
+        <br />
+        <div class="form-group mb-3 validation-gap">
+            <label for="checkBox" required="required">Convert to PDF</label>
+            <ejs-checkbox id="checkBox" label="Check to save the document as a PDF upon merge. Leave unchecked to save it as a DOCX" checked="@Model.isConvertToPdf" onclick="convertToPdfCalled()"></ejs-checkbox>
+            <input type="hidden" id="pdfFlag" name="isConvertToPdf" value="@Model.isConvertToPdf" />
+        </div>
+        <br />
+        <div class="form-group mb-3 validation-gap">
+            <ejs-dropdownlist id="recordStatusDropdown" name="RecordStatus" required="required" dataSource=@ViewBag.RecordStatusData value="@Model.RecordStatus" placeholder="Select Status of the Template" floatLabelType=Auto>
+                <e-dropdownlist-fields text=Text value=Value></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+            <span asp-validation-for="RecordStatus" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3 d-flex justify-content-between">
+            <button onclick="location.href='@Url.Action("ListTemplates", "LetterTemplates")'" class="btn btn-secondary">Back to List</button>
+            <button type="submit" value="Update" class="btn btn-primary">Update</button>
+        </div>
+    </form>
+</div>

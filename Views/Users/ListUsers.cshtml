@@ -1,0 +1,85 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.UserViewModel>
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+<div class="content">
+
+    @{
+        List<object> GridCommands = new List<object>();
+        GridCommands.Add(new
+        {
+            type = "Edit",
+            buttonOption = new
+            {
+                iconCss = "e-icons e-edit btnEdit",
+                cssClass = "e-flat",
+            }
+        });
+        GridCommands.Add(new
+        {
+            type = "Delete",
+            buttonOption = new
+            {
+                iconCss = "e-icons e-delete btnDelete",
+                cssClass = "e-flat"
+            }
+        });
+    }
+
+  
+    @{
+
+        List<object> filterColumns = new List<object>();
+
+        filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+    }
+
+    <div style="display:flex;justify-content: space-between; align-items: center;">
+        <h1>List Users</h1>
+        <a asp-action="CreateUser" class="btn btn-primary">Add New User</a>
+    </div>
+
+    <ejs-grid id="UsersGrid" dataSource="@Model" commandClick="commandClick" toolbarClick="toolbarClick" allowExcelExport="true" toolbar="@(new List<string>() { "Search", "ExcelExport" })" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true">
+        <e-grid-filterSettings type="Excel" columns="filterColumns">
+        </e-grid-filterSettings>
+        <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+        <e-grid-columns>
+            <e-grid-column headerText="Actions" width="80" commands="GridCommands"></e-grid-column>
+            <e-grid-column field="UserName" headerText="Username" width="100"></e-grid-column>
+            <e-grid-column field="Email" headerText="Email" width="120" ></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Record Status" width="70"></e-grid-column>
+            <e-grid-column field="CreatedUser" headerText="Created By" width="120"></e-grid-column>
+                <e-grid-column field="CreatedDttm" headerText="Created On Date" width="120" format="MMM dd yyyy"></e-grid-column>
+            <e-grid-column field="FullName" headerText="Full Name" width="150"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteConfirmed", "Users")" style="display: none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="user" id="user" />
+    </form>
+</div>
+
+<script>
+    var deleteConfirmedUrl = '@Url.Action("DeleteConfirmed", "Users")';
+</script>
+
+<style>
+    .e-grid .e-rowcell {
+        text-align: left !important; 
+    }
+
+</style>

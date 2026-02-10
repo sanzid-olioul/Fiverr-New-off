@@ -1,0 +1,78 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CcdpCaseViewModel>
+
+@{
+    ViewData["Title"] = "Cases";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <h1>Cases Search</h1>
+
+    @{
+        List<object> filterColumns = new List<object>();
+
+        filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+    }
+
+    <div class="row">
+        <div class="col-md-6">
+            <ejs-textbox type="text" class="form-control" id="courtCaseNo" name="courtCaseNo" required="required" placeholder="Court Case No." onkeydown="handleKeyPress(event)"></ejs-textbox>
+
+            <ejs-dropdownlist id="caseStatusDropdown" dataSource="@ViewBag.CaseStatusData" placeholder="Case Status" onkeydown="handleKeyPress(event)">
+                     <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+
+            <ejs-textbox type="text" class="form-control" id="plaintiffName" name="plaintiffName" placeholder="Plaintiff Name" onkeydown="handleKeyPress(event)"></ejs-textbox>
+
+            <ejs-textbox type="text" class="form-control" id="defendantName" name="defendantName" placeholder="Defendant Name" onkeydown="handleKeyPress(event)"></ejs-textbox>
+  
+        </div>
+        <div class="col-md-6">
+            <ejs-datepicker id="filingDate" format="yyyy-MM-dd" placeholder="Filing Date" asp-for="FilingDate" onkeydown="handleKeyPress(event)"></ejs-datepicker>
+
+            <ejs-dropdownlist id="hearingIdDropdown" dataSource="@ViewBag.HearingDatesRangeData" placeholder="Hearing Date" onkeydown="handleKeyPress(event)">
+                   <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+
+            <ejs-textbox type="text" class="form-control" id="repName" name="repName" placeholder="Plaintiff Rep Name" onkeydown="handleKeyPress(event)"></ejs-textbox>
+
+            <ejs-textbox type="text" class="form-control" id="defRepName" name="defRepName" placeholder="Defendant Rep Name" onkeydown="handleKeyPress(event)"></ejs-textbox>
+        </div>
+    </div>
+    
+    <div class="form-group mb-3">
+        <button id="searchButton" class="btn btn-secondary" onclick="onSearchClick()">Search</button>
+        <button id="clearButton" class="btn btn-secondary" onclick="onClearClick()">Clear</button>
+    </div>
+
+
+    <ejs-grid id="Grid" dataSource="@Model" toolbar="@(new List<string>() { "Search", "ExcelExport" })" toolbarClick="toolbarClick" allowExcelExport="true" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true">
+        <e-grid-filterSettings type="Excel" columns="filterColumns">
+        </e-grid-filterSettings>
+        <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+        <e-grid-columns>
+            <e-grid-column field="CaseId" headerText="Case ID" width="0" visible="false" isPrimaryKey="true"></e-grid-column>
+            <e-grid-column field="CourtCaseNumber" allowEditing="false" headerText="Court Case Number" width="280"></e-grid-column>
+            <e-grid-column field="HearingId" headerText="Hearing Date" width="0" visible="false"></e-grid-column>
+            <e-grid-column field="HearingDttm" headerText="Hearing Date" width="180"></e-grid-column>
+            <e-grid-column field="CaseStatus" headerText="Case Status" width="200" editType="dropdownedit"></e-grid-column>
+            <e-grid-column field="CaseComment" headerText="Case Comments" width="300"></e-grid-column>
+            <e-grid-column field="FilingDateSearchValue" headerText="Filing Date" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffName" headerText="Plaintiff Name" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRepName" headerText="Plaintiff Rep One" width="150"></e-grid-column>
+            <e-grid-column field="PlaintiffRep2Name" headerText="Plaintiff Rep Two" width="150"></e-grid-column>
+            <e-grid-column field="DefendantName" headerText="Defendant Name" width="150"></e-grid-column>            
+            <e-grid-column field="DefendantRepName" headerText="Defendant Rep One" width="150"></e-grid-column>
+            <e-grid-column field="DefendantRep2Name" headerText="Defendant Rep Two" width="150"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="150" editType="dropdownedit"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+</div>
+
+<script>
+    var searchCasesUrl = '@Url.Action("SearchCases", "Cases")';
+</script>
+<style>
+    .e-grid .e-rowcell {
+        text-align: left !important;
+    }
+</style>

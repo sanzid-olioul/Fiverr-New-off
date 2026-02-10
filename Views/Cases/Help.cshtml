@@ -1,0 +1,412 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CcdpCaseViewModel>
+
+@{
+    ViewData["Title"] = "Cases";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div class="content">
+
+
+    <div style="display:flex;justify-content: space-between; align-items: center;">
+        <h1>Help</h1>
+        <a asp-action="#" class="btn btn-primary" onclick="alert('This feature can be added.'); return false;">Ask Query</a>
+    </div>
+
+    <div class="control_wrapper accordion-control-section">
+        <ejs-accordion id="defaultAccordion">
+            <e-accordion-accordionitems>
+                <!-- Overview -->
+                <e-accordion-accordionitem header="Overview">
+                    <e-content-template>
+                        <div>
+                            <h5>Getting Started Overview:</h5>
+                            <p class="text-wrap text-break text-start">
+                                Begin here to understand the key steps for setting up and managing cases in the system.
+                                Some actions are one-time or situational prerequisites, while others apply to each new case.
+                            </p>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Prerequisites -->
+                <e-accordion-accordionitem header="Prerequisites (As Needed)">
+                    <e-content-template>
+                        <div>
+                            <h5>Prerequisites (As Needed)</h5>
+                            <div>
+                                <h6>Manage Hearing Dates</h6>
+                                <p>
+                                    Navigate to the <strong>Manage Hearing Dates</strong> section to add upcoming hearing dates.
+                                    These dates are used in merge fields and for tracking upcoming conciliation hearings.
+                                </p>
+                                <h6>Create Case Order Templates</h6>
+                                <p>
+                                    In the <strong>Templates</strong> section, create reusable Word templates for case orders and letters.
+                                    Templates use dynamic <strong>merge fields</strong> to populate case-specific data during the merge process.
+                                </p>
+                                <p>
+                                    See <strong>Merge Fields Reference</strong> below for field options and descriptions.
+                                </p>
+                            </div>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Case Creation -->
+                <e-accordion-accordionitem header="Case Creation">
+                    <e-content-template>
+                        <div>
+                            <h5>Case Creation</h5>
+                            <div>
+                                <p>
+                                    In the <strong>Cases</strong> section:
+                                </p>
+                                <ol>
+                                    <li><strong>Create a New Case</strong></li>
+                                    <p>Start a new case and complete all required fields and upload the Complaint.</p>
+                                    <li><strong>(Optional) Use Smart Paste</strong></li>
+                                    <p>If you’ve copied structured party information from a complaint or formatted source, use the <strong>Smart Paste</strong> button to automatically populate the relevant fields.</p>
+                                    <li><strong>(Optional) Enable AI Eligibility Check</strong></li>
+                                    <p>Check the <strong>"Check eligibility using AI"</strong> box to automatically initiate an eligibility scan of the uploaded Complaint.</p>
+                                </ol>
+                            </div>
+                            <span>If the checkbox is selected, the AI scan will run immediately upon case creation. If not, the scan can be triggered later from the <strong>Case Documents</strong> tab.</span>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Features -->
+                <e-accordion-accordionitem header="Next Steps (Optional Follow-Up)">
+                    <e-content-template>
+                        <div>
+                            <h5>Next Steps (Optional Follow-Up)</h5>
+                            <div>
+                                <p>
+                                    Once a case is created, you can perform the following actions:
+                                </p>
+                                <h6>Generate Case Order Documents</h6>
+                                <p>
+                                    Use your saved templates to generate merged documents:
+                                </p>
+                                <ol>
+                                    <li>Open the case and go to the <strong>Merge Letters</strong> tab.</li>
+                                    <li>Select the desired template from the <strong>Select Template</strong> dropdown.</li>
+                                    <li>Enter a document name in the <strong>Enter Document Name</strong> field.</li>
+                                    <li>Click <strong>Merge and Save</strong>.</li>
+                                    <li>View the generated file in the <strong>Case Documents</strong> tab.</li>
+                                </ol>
+                                <p>
+                                    Templates appear in the dropdown only if they were created and saved in the Templates section.
+                                </p>
+
+                                <h6>Review AI Eligibility Results</h6>
+                                <p>
+                                    If the AI scan was enabled:
+                                </p>
+                                <ol>
+                                    <li>Navigate to the <strong>Merge Letters</strong> tab.</li>
+                                    <li>Locate the scanned file.</li>
+                                    <li>Click <strong>View Results</strong> to review the AI's assessment.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Merge Fields -->
+                <e-accordion-accordionitem header="Case Order Templates">
+                    <e-content-template>
+                        <div>
+                            <h5>Case Order Templates</h5>
+                            <div>
+                                <p>
+                                    Case Order Templates are customizable Word files used to auto-generate documents with case-specific data.
+                                </p>
+                                <ul>
+                                    <li>Templates must be created in the <strong>Templates</strong> section before use.</li>
+                                    <li>During case handling, templates are selected in the <strong>Merge Letters</strong> tab.</li>
+                                    <li>You can merge any template with any case as long as the necessary data exists.</li>
+                                    <li>After merging, documents are saved to the <strong>Case Documents</strong> tab.</li>
+                                </ul>
+                                <h6>Merge Fields Reference</h6>
+                                <table>
+                                    <tr>
+                                        <th class="merge-field-header">Merge Field</th>
+                                        <th class="merge-field-header">Decription</th>
+                                        <th class="merge-field-header">Source</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">CourtCaseNumber</td>
+                                        <td class="merge-field-cell">The court-assigned case number.</td>
+                                        <td class="merge-field-cell">Case screen > Court Case Number</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">PlaintiffName</td>
+                                        <td class="merge-field-cell">Full name of the plaintiff.</td>
+                                        <td class="merge-field-cell">Case screen > Plaintiff Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">PlaintiffRepName</td>
+                                        <td class="merge-field-cell">Primary representative for the plaintiff.</td>
+                                        <td class="merge-field-cell">Case screen > Plaintiff Representative Name 1</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">Plaintiff2RepName</td>
+                                        <td class="merge-field-cell">Secondary representative for the plaintiff.</td>
+                                        <td class="merge-field-cell">Case screen > Plaintiff Representative Name 2</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">DefendantName</td>
+                                        <td class="merge-field-cell">Full Name of the defendant.</td>
+                                        <td class="merge-field-cell">Case screen > Defendant Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">DefendantRepName</td>
+                                        <td class="merge-field-cell">Primary representative for the defendant.</td>
+                                        <td class="merge-field-cell">Case screen > Defendant Representative Name 1</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">Defendant2RepName</td>
+                                        <td class="merge-field-cell">Secondary representative for the defendant.</td>
+                                        <td class="merge-field-cell">Case screen > Defendant Representative Name 2</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">DefendantCopiesTo</td>
+                                        <td class="merge-field-cell">Additional recipients related to the defendant.</td>
+                                        <td class="merge-field-cell">Used in Copies To section of the template. If the defendant has a Defendant Rep Name; If none, Defendant’s name.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">FilingDate</td>
+                                        <td class="merge-field-cell">Date the case was filed.</td>
+                                        <td class="merge-field-cell">Case Screen > Filing Date</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">HearingDate</td>
+                                        <td class="merge-field-cell">Current hearing date.</td>
+                                        <td class="merge-field-cell">Case Screen > Hearing Date</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">HearingDatePrevious</td>
+                                        <td class="merge-field-cell">Previous hearing date, used for tracking updates.</td>
+                                        <td class="merge-field-cell">If the case is continued to a new date, this is the previous hearing date. For example if the last hearing date was 4/1 and the new updated hearing date is 5/1, this merge field would return 4/1. </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">DateToday</td>
+                                        <td class="merge-field-cell">Today's date (merge execution date).</td>
+                                        <td class="merge-field-cell">System Date</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">CMODate</td>
+                                        <td class="merge-field-cell">The creation date of the most recently merged document with the Document Type of "Case Management Order".</td>
+                                        <td style="border-right: 1px black solid; border-bottom: 1px black solid;padding: 0.3em;" rowspan="5">Note: Keep in mind, the letter name shown to users may differ from this type, but the merge field uses the underlying document type to find the correct date.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">NCODate</td>
+                                        <td class="merge-field-cell">The creation date of the most recently merged document with the Document Type of "Date of the Non-compliance Order".</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">RTSCCODate</td>
+                                        <td class="merge-field-cell">The creation date of the most recently merged document with the Document Type of "Date of the Rule to show Cause Rule Returnable with Continuance".</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">CDPLFDate</td>
+                                        <td class="merge-field-cell">The creation date of the most recently merged document with the Document Type of " Case Dismissed PL Failed to Appear at a Conference."</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="merge-field-cell">CDNCODate</td>
+                                        <td class="merge-field-cell">The creation date of the most recently merged document with the Document Type of "Date of the Case Dismissed Non-Compliance with Rule to Show Cause Order".</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- AI Features -->
+                <e-accordion-accordionitem header="AI Features">
+                    <e-content-template>
+                        <div>
+                            <h5>AI Features</h5>
+                            <div>
+                                <h6>Smart Paste</h6>
+                                <p>Use the <strong>Smart Paste</strong> button to automatically populate case fields using copied text from a structured document, like a complaint.</p>
+                                <ul>
+                                    <li>Works with Ctrl + C or right-click → Copy.</li>
+                                    <li>Automatically detects party names and roles.</li>
+                                </ul>
+                                <h6>AI Eligibility Check</h6>
+                                <p>
+                                    AI analyzes uploaded documents against a predefined script that contains the eligibility requirements.
+                                    Based on this comparison, it returns a result indicating whether the individual meets the criteria for the diversion program.
+                                </p>
+                                <ul>
+                                    <li>Can be run during case creation or triggered manually later.</li>
+                                    <li>Results appear in the <strong>Eligibility Requests</strong> tab or in the <strong>Case Document</strong> tab.</li>
+                                    <li>Eligibility on case document always show most current review on all view summary links. For actual submission history, go to Eligibility Requests table.</li>
+                                </ul>
+                                <p>
+                                    <strong>Note</strong>: If the eligibility results appear incorrect or unexpected, contact your development team. They can review and update the predefined script that governs the eligibility checks.
+                                </p>
+                                <p>For more details, refer to: <a href="https://devblogs.microsoft.com/dotnet/introducing-dotnet-smart-components/" target="_blank">Introducing .NET Smart Components</a>.</p>
+                            </div>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Case Tools and Tracking -->
+                <e-accordion-accordionitem header="Case Tools and Tracking">
+                    <e-content-template>
+                        <div>
+                            <h5>Case Tools and Tracking</h5>
+                            <div>
+                                <p>Each case includes built-in tools to support case history and communication:</p>
+                                <ul>
+                                    <li><strong>Case Comments</strong></li>
+                                    <p>Add and track internal notes in the <strong>Case Comments</strong> tab.</p>
+                                    <li><strong>Activity Log</strong></li>
+                                    <p>Review a full audit trail of edits and system actions in the <strong>Activity Log</strong> tab</p>
+                                </ul>
+                                <p>
+                                    <i>Case status updates automatically based on uploaded documents. For unique cases or exceptions, status may need to be adjusted manually.</i>
+                                </p>
+                            </div>
+
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Conciliation Management -->
+                <e-accordion-accordionitem header="Conciliation Management">
+                    <e-content-template>
+                        <div>
+                            <h5>Conciliation Management</h5>
+                            <div>
+                                <p>The <strong>Conciliation Management</strong> section helps manage hearing participants and schedules.</p>
+                                <p><strong>Key Features</strong>:</p>
+                                <ul>
+                                    <li><strong>Filter by Hearing Date</strong></li>
+                                    <p>Narrow the participant list by date for easy navigation.</p>
+                                    <li><strong>Advanced Sorting and Filtering</strong></li>
+                                    <p>Use column filters to quickly locate participants or cases.</p>
+                                    <li><strong>Inline Editing</strong></li>
+                                    <p>Edit fields directly within the table for fast updates.</p>
+                                    <li><strong>Export Options</strong></li>
+                                    <p>Export the filtered or full list to Excel or Word.</p>
+                                    <li><strong>Color-Coded Status</strong></li>
+                                    <p>Rows are visually highlighted based on case status:</p>
+                                    <ul>
+                                        <li>Green – Complied with Rule, May Proceed to Conference (Open)</li>
+                                        <li>Yellow – No Service (Open)</li>
+                                        <li>Red – Dismissed (Closed); Settled (Closed)</li>
+                                        <li>Gray – Case Closed (Closed)</li>
+                                    </ul>
+                                </ul>
+                                <p>
+                                </p>
+                            </div>
+
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+                <!-- Common Issues -->
+                <e-accordion-accordionitem header="Troubleshooting and Common Issues">
+                    <e-content-template>
+                        <div>
+                            <h5>Troubleshooting and Common Issues</h5>
+                            <div>
+                                <h6>Merge Field Doesn’t Appear?</h6>
+                                <ul>
+                                    <li>
+                                        Ensure the merge field is typed correctly in the template.
+                                    </li>
+                                    <li>
+                                        Check if the corresponding value exists in the case.
+                                    </li>
+                                    <li>
+                                        For date-based fields, ensure the relevant document (e.g., CMO) has been uploaded or merged.
+                                    </li>
+                                </ul>
+
+                                <h6><code>HearingDatePrevious</code> Incorrect?</h6>
+                                <ul>
+                                    <li>
+                                        Set the <strong>prior hearing date</strong>, save the case.
+                                    </li>
+                                    <li>
+                                        Then edit the case and set the <strong>new date</strong>, and save again.
+                                    </li>
+                                    <li>
+                                        This ensures the system can track both current and previous hearing dates correctly during the merge
+                                    </li>
+                                </ul>
+
+                                <h6>Page Not Responding?</h6>
+                                <ul>
+                                    <li>
+                                        Refresh using <strong>Ctrl + Shift + R</strong> (Windows) or <strong>⌘ + Shift + R</strong> (Mac).
+                                    </li>
+                                    <li>
+                                        Clear your browser cache.
+                                    </li>
+                                </ul>
+
+                                <h6>Editing Outside the App?</h6>
+                                <ul>
+                                    <li>
+                                        Refresh using <strong>Ctrl + Shift + R</strong> (Windows) or <strong>⌘ + Shift + R</strong> (Mac).
+                                    </li>
+                                    <li>
+                                        You can download a merged document, edit it offline in Word, then re-upload the final version to the case.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </e-content-template>
+                </e-accordion-accordionitem>
+
+            </e-accordion-accordionitems>
+        </ejs-accordion>
+    </div>
+</div>
+
+
+<style>
+    /* Customizing header */
+    .e-accordion .e-acrdn-item.e-select > .e-acrdn-header {
+        background: #D3D3D3 !important;
+        text-align: left;
+        font-size:30px !important;     
+    }
+
+    .e-accordion .e-acrdn-item .e-acrdn-header .e-acrdn-header-content {
+        font-size: 16px;
+    }
+
+    /* Customizing dropdown list items */ 
+    .e-accordion .e-acrdn-item .e-acrdn-content {
+        text-align: left;
+        font-size: 14px !important;
+    }
+
+   /*  Customizing the arrow icon */
+    .e-accordion .e-acrdn-item .e-acrdn-header .e-toggle-icon .e-icons {
+        /* color: #fff; */
+    }
+
+</style> 

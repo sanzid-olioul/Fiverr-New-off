@@ -1,0 +1,249 @@
+﻿@using Syncfusion.EJ2.Navigations;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var username = HttpContextAccessor.HttpContext?.Session.GetString("Username");
+    var CurrentCaseId = Context.Session.GetString("CurrentCaseId");
+    var CourtCaseNumber = Context.Session.GetString("CourtCaseNumber");
+    var defendantName = Context.Session.GetString("DefendantName");
+}
+
+<div class="sidebar-tab-container">
+    @if (!string.IsNullOrEmpty(CurrentCaseId))
+    {
+        <div class="tab-menu-custom">
+            <div class="case-number-heading">
+                Case No:
+               <span class="case-number nowrap">
+    @(string.IsNullOrWhiteSpace(CourtCaseNumber)
+        ? "&lt;&lt;No Case&gt;&gt;"
+        : $"{CourtCaseNumber} {defendantName}")
+</span>
+            </div>
+
+            <ejs-tab id="defaultTab" selecting="Selecting" class="tab-menu-font">
+                <e-tab-tabitems>
+                    <e-tab-tabitem header="ViewBag.headerText0" content=""></e-tab-tabitem>
+                    <e-tab-tabitem header="ViewBag.headerText1" content=""></e-tab-tabitem>
+                    <e-tab-tabitem header="ViewBag.headerText2" content=""></e-tab-tabitem>
+                    <e-tab-tabitem header="ViewBag.headerText3" content=""></e-tab-tabitem>
+                    <e-tab-tabitem header="ViewBag.headerText4" content=""></e-tab-tabitem>
+                    <e-tab-tabitem header="ViewBag.headerText5" content=""></e-tab-tabitem>
+                </e-tab-tabitems>
+            </ejs-tab>
+        </div>
+
+        <div class="underline"></div>
+
+        <ejs-sidebar id="sidebar-menu" class="dock-menu" target=".main-content" dockSize="50px" enableDock="true" enableGestures="false">
+            <e-content-template>
+                <div class="main-menu">
+                    <br />
+                    <div>
+                        <ejs-menu id="main-menubar" items="ViewBag.mainMenuItems" orientation="Vertical" beforeItemRender="onItemRender" select="onSelect"></ejs-menu>
+                    </div>
+                </div>
+            </e-content-template>
+        </ejs-sidebar>
+    }
+    else
+    {
+        <ejs-sidebar id="sidebar-menu" class="dock-menu" target=".main-content" dockSize="50px" enableDock="true" enableGestures="false">
+            <e-content-template>
+                <div class="main-menu">
+                    <br />
+                    <div>
+                        <ejs-menu id="main-menubar" items="ViewBag.mainMenuItems" orientation="Vertical" beforeItemRender="onItemRender" select="onSelect"></ejs-menu>
+                    </div>
+                </div>
+            </e-content-template>
+        </ejs-sidebar>
+    }
+</div>
+
+<script>
+    var selectedText = sessionStorage.getItem('selectedText') || "Cases";
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if ('@CurrentCaseId' != "") {
+            var tabInstance = document.getElementById('defaultTab').ej2_instances[0];
+            var selectedTabIndex = sessionStorage.getItem('selectedTabIndex') || 0; // Default to 0 if nothing is set
+
+            tabInstance.selectedItem = parseInt(selectedTabIndex);
+
+            const tabItems = document.querySelectorAll('.e-toolbar-item');
+            tabItems.forEach((item, index) => {
+                if (index === parseInt(selectedTabIndex)) {
+                    item.classList.add('e-active');
+                } else {
+                    item.classList.remove('e-active');
+                }
+            });
+
+            tabInstance.selectedItem = selectedTabIndex;
+        }
+
+        sidebarInstance = document.getElementById('sidebar-menu').ej2_instances[0];
+
+        document.getElementById('hamburger').onclick = function () {
+            sidebarInstance.toggle();
+            adjustTabMenuPosition();
+        };
+
+        function adjustTabMenuPosition() {
+            var sidebarWidth = sidebarInstance.isOpen ? sidebarInstance.element.offsetWidth : 0;
+            var tabMenu = document.querySelector('.tab-menu-custom');
+
+            if (tabMenu) {
+                if (sidebarWidth > 50) {
+                    tabMenu.style.setProperty('left', (sidebarWidth) + 'px', 'important');
+                } else {
+                    tabMenu.style.setProperty('left', '50px', 'important');
+                }
+            } else {
+                console.warn("Element '.tab-menu-custom' not found.");
+            }
+        }
+
+        adjustTabMenuPosition();
+    });
+
+    function onItemRender(args) {
+        if (args.item.text === selectedText) {
+            args.element.classList.add('e-active-menu');
+        }
+    }
+
+    function onSelect(args) {
+        selectedText = args.item.text;
+        sessionStorage.setItem('selectedText', selectedText);
+        sessionStorage.removeItem('selectedTabIndex');
+
+        // Remove highlight from the previously active menu item
+        const activeMenuItem = document.querySelector('.e-active-menu');
+        if (activeMenuItem) {
+            activeMenuItem.classList.remove('e-active-menu');
+        }
+
+        // Add highlight to the newly selected item
+        args.element.classList.add('e-active-menu');
+    }
+
+    const caseUrl = '@Url.Action("ViewCase", "Cases")/' + '@CurrentCaseId';
+    const mergeLetterUrl = '@Url.Action("MergeTemplate", "LetterTemplates")';
+    const caseDocsUrl = '@Url.Action("ListDocuments", "CaseDocs")';
+    const requestsAiUrl = '@Url.Action("ListRequests", "EligibilityCheckRequests")';
+    const commentsUrl = '@Url.Action("ListComments", "CaseComments")';
+    const activityLogUrl = '@Url.Action("CaseActivityLog", "Cases")';
+
+    function Selecting(args) {
+        selectedTabIndex = args.selectingIndex;
+        sessionStorage.setItem('selectedTabIndex', selectedTabIndex);
+
+        switch (args.selectingIndex) {
+            case 0:
+                window.location.href = caseUrl;
+                break;
+            case 1:
+                window.location.href = mergeLetterUrl;
+                break;
+            case 2:
+                window.location.href = caseDocsUrl;
+                break;
+            case 3:
+                window.location.href = requestsAiUrl;
+                break;
+            case 4:
+                window.location.href = commentsUrl;
+                break;
+            case 5:
+                window.location.href = activityLogUrl;
+                break;
+            default:
+                console.warn('No valid case selected.');
+        }
+    }
+</script>
+
+<style>
+    .e-menu-item.e-active-menu,
+    .e-ul .e-active-menu {
+        background-color: #01579b !important;
+        border-radius: 4px;
+        margin-left: 2px;
+        margin-right: 2px;
+        color: #fff !important;
+    }
+
+    /* Specifically target the text and URL classes within the active menu item */
+    .e-menu-item.e-active-menu .e-menu-text,
+    .e-ul .e-active-menu .e-menu-text,
+    .e-menu-item.e-active-menu .e-menu-url,
+    .e-ul .e-active-menu .e-menu-url {
+        color: #fff !important; /* Set text color to white */
+    }
+
+    /* Change icon color to white for active menu item */
+    .e-menu-item.e-active-menu .e-menu-icon,
+    .e-ul .e-active-menu .e-menu-icon {
+        color: #fff !important; /* Set icon color to white */
+    }
+
+    .flex-custom-horizontal {
+        display: flex;
+        flex-direction: row;
+    }
+
+    /* Change font family to Inter and text color */
+    .e-tab .e-tab-header .e-toolbar-item .e-tab-text {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 14px !important; /* Ensure font size is 14px */
+        font-weight: 500 !important; /* Change weight to 500 */
+        color: #14151A !important; /* Set the text color */
+        text-transform: capitalize;
+        align-self: auto;
+        margin-bottom: 0;
+    }
+
+    /* Specific style for active tab item */
+    .e-tab .e-tab-header .e-toolbar-item.e-active .e-tab-text {
+        font-weight: 600 !important; /* Change to 600 for active tab */
+        font-family: 'Inter' !important; /* Use the custom font-family variable */
+        font-size: 14px !important; /* Ensure font-size is 14px */
+        line-height: 20px !important; /* Use the custom line-height */
+        text-align: center; /* Center align text */
+        color: #14151A !important; /* Text color for active tab */
+    }
+
+    /* Active Tab Underline */
+    .e-tab .e-tab-header .e-toolbar-item.e-active .e-text-wrap::before {
+        border-bottom: 2px solid #0157b9 !important; /* Change border color to blue */
+        content: "";
+        display: block;
+        position: absolute;
+        width: 100%;
+        border-radius: 3px 3px 0 0; /* Rounded corners on top */
+        bottom: 0;
+    }
+
+    /* Inactive Tab Long Greyed-Out Border */
+    .e-tab .e-tab-header .e-toolbar-item:not(.e-active) .e-text-wrap::before {
+        border-bottom: 1px solid #E9EAEC !important; /* Greyed-out color for inactive tabs */
+        content: "";
+        display: block;
+        position: absolute;
+        width: 100%;
+        border-radius: 3px 3px 0 0; /* Rounded corners on top */
+        bottom: 0;
+    }
+
+    /* Optional: If you want to ensure consistency across all tabs */
+    .e-tab .e-tab-header .e-toolbar-item .e-tab-icon {
+        color: #14151A !important; /* Set icon color to match text color */
+    }
+
+    /* Remove opacity from non-active tabs */
+    .e-tab .e-tab-header .e-toolbar-item:not(.e-active) .e-tab-text {
+        opacity: 0.6 !important; /* Lower opacity for non-active tabs */
+    }
+</style>

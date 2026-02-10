@@ -1,0 +1,50 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.CaseDocumentViewModel
+
+@{
+    ViewData["Title"] = "Upload Document";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="content">
+    <div class="row">
+        <h2>Upload Document</h2>
+        <div class="col-md-6">
+            <form id="uploadForm" asp-action="UploadDocument" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-textbox id="name" type="text" placeholder="Document Name" required="required" asp-for="Name" FloatLabelType="Auto" ejs-for="@Model.Name"></ejs-textbox>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-dropdownlist id="docTypeDropdown" name="DocType" dataSource="@ViewBag.DocTypeData" required="required" placeholder="Select Document Type" FloatLabelType="Auto" ejs-for="@Model.DocType">
+                        <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+                    </ejs-dropdownlist>
+                    <span asp-validation-for="DocType" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-uploader name="DocumentUpload" asp-for="DocumentUpload" id="documentUpload" accept=".pdf,.docx" required="required" placeholder="Upload Document (docx/pdf)" FloatLabelType="Auto"></ejs-uploader>
+                    <span asp-validation-for="DocumentUpload" class="text-danger"></span>
+                </div>
+
+
+                <div style="text-align:left">
+                    <input type="submit" value="Upload" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .content {
+        margin-top: 140px !important;
+    }
+
+    .row{
+        margin-left:0 !important;
+    }
+</style>

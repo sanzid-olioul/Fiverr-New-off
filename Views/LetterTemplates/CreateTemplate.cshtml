@@ -1,0 +1,59 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.LetterTemplateViewModel
+
+@{
+    ViewData["Title"] = "Create Letter Template";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType
+                            " role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+<div class="content">
+
+    <h1>Create Letter Template</h1>
+
+    <form asp-action="CreateTemplate" id="createTemplateForm" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox type="text" class="form-control" required="required" id="Name" asp-for="Name" placeholder="Template Name" FloatLabelType="Auto" ejs-for="@Model.Name"></ejs-textbox>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-dropdownlist id="docTypeDropdown" required="required" dataSource="@ViewBag.DocTypeData" asp-for="DocType" placeholder="Select Document Type" FloatLabelType="Auto" ejs-for="@Model.DocType">
+                <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+            </ejs-dropdownlist>
+            <span asp-validation-for="DocType" class="text-danger"></span>
+        </div>
+
+        <br>
+        <div class="form-group validation-gap">
+            <label for="templateDocument" required="required">Upload a Template Word Document (.docx)</label>
+            <ejs-uploader id="templateDocument" name="TemplateFile" asp-for="TemplateFile" required="required" allowedextensions=".docx" placeholder="Upload Template File" FloatLabelType="Auto"></ejs-uploader>
+            <span asp-validation-for="TemplateFile" class="text-danger"></span>
+        </div>
+
+        <br>
+        <div class="form-group validation-gap">
+            <label for="checkBox" required="required">Convert to PDF</label>
+            <ejs-checkbox id="checkBox" label="Check to save the document as a PDF upon merge. Leave unchecked to save it as a DOCX" checked="false" onclick="convertToPdfCalled()"></ejs-checkbox>
+        </div>
+        <input type="hidden" id="pdfFlag" name="isConvertToPdf" value="false" />
+     
+        <br>
+
+        <div class="form-group mb-3 d-flex justify-content-between">
+            <a asp-action="ListTemplates" class="btn btn-secondary">Back to List</a>
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+

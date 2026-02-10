@@ -1,0 +1,190 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.CcdpCaseViewModel
+
+@{
+    ViewData["Title"] = "Create Case";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-success" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div id="customAlert" class="popup-alert-custom popup-alert-error" style="display: none;font-weight: bold;" role="alert">
+    <button class="close-btn" onclick="closeAlert()">&times;</button>
+    <span id="alertMessage"></span>
+</div>
+
+<div id="overlay" class="overlay" style="display: none;"></div>
+<div id="customAlertSuccess" class="popup-alert-custom popup-alert-success" style="display: none;font-weight: bold;" role="alert">
+    <button class="close-btn" onclick="closeAlert()">&times;</button>
+    <span id="alertMessageSuccess"></span>
+</div>
+
+<div class="content">
+   
+    <h1>Create Case</h1>
+    <hr />
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="createForm" asp-action="CreateCase" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly"></div>
+
+                <smart-paste-button class="btn btn-primary" id="smart-paste-button" />
+
+                <div class="form-group mb-3 validation-gap">
+                    <div class="e-error">
+                    <ejs-textbox id="courtCaseNumber" required="required" type="text" placeholder="Court Case Number" asp-for="CourtCaseNumber" FloatLabelType="Auto" ejs-for="@Model.CourtCaseNumber"></ejs-textbox>
+                    </div>
+                    <span asp-validation-for="CourtCaseNumber" class="text-danger custom-label"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <div class="e-error">
+                    <ejs-datepicker id="filingDate" required="required" format="yyyy-MM-dd" asp-for="FilingDate" placeholder="Filing Date" FloatLabelType="Auto" onchange="onFilingDateChange()" ejs-for="@Model.FilingDate"></ejs-datepicker>
+                    </div>
+                    <span asp-validation-for="FilingDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <div id="plaintiffNameGroup">
+                        <ejs-textbox id="plaintiffName" required="required" type="text" placeholder="Plaintiff Name" data-smartpaste-description="This field should contain the Plaintiff's company name (e.g., BANK OF AMERICA NA), not an individual human name. Always paste the company name associated with the Plaintiff." asp-for="PlaintiffName" FloatLabelType="Auto" ejs-for="@Model.PlaintiffName"></ejs-textbox>
+                    </div>
+                    <span asp-validation-for="PlaintiffName" class="text-danger"></span>
+                </div>
+
+                 <div class="form-group mb-3 validation-gap">
+                    <ejs-textbox id="PlaintiffRepLawfirmName" type="text" placeholder="Plaintiff Representative Law Firm Name"
+                                 data-smartpaste-description="This field is for the first Plaintiff representative law firm name. If the clipboard contains 2 representatives, paste the llc/lpa/the firm name of the first attorney/rep here (remove any address details)"
+                                 asp-for="PlaintiffRepName" FloatLabelType="Auto" ejs-for="@Model.PlaintiffRepLawfirmName">
+                    </ejs-textbox>
+                    <span asp-validation-for="PlaintiffRepLawfirmName" class="text-danger"></span>
+                </div>  
+
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-textbox id="plaintiffRepName" required="required" type="text" placeholder="Plaintiff Representative Name 1"
+                                 data-smartpaste-description="This field is for the first Plaintiff representative. If the clipboard contains 2 representatives, paste the second attorney name here (the name that appears after the first attorney name in the clipboard data) and remove any address details. If no representative is listed, add law firm name."
+                                 asp-for="PlaintiffRepName" FloatLabelType="Auto" ejs-for="@Model.PlaintiffRepName">
+                    </ejs-textbox>
+                    <span asp-validation-for="PlaintiffRepName" class="text-danger"></span>
+                </div>  
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-textbox id="plaintiffRep2Name" type="text" placeholder="Plaintiff Representative Name 2"
+                                 data-smartpaste-description="This field is for the second Plaintiff representative. If the clipboard contains two representatives, paste the first representative's name (the name that appears right after the plaintiff name in the clipboard data) here. If no second representative is listed, leave the field blank. Remove any address details or law firm information."
+                                 asp-for="PlaintiffRep2Name" FloatLabelType="Auto" ejs-for="@Model.PlaintiffRep2Name">
+                    </ejs-textbox>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <div id="defendantNameGroup">
+                        <ejs-textbox id="defendantName" required="required" type="text" placeholder="Defendant Name" data-smartpaste-description="This field should contain the full name of the Defendant (e.g., JANE A DOE). Do not include any addresses or other details." asp-for="DefendantName" FloatLabelType="Auto" ejs-for="@Model.DefendantName"></ejs-textbox>
+                    </div>
+                    <span asp-validation-for="DefendantName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <div id="DefendantTwoNameGroup">
+                        <ejs-textbox id="DefendantTwoName" type="text" placeholder="Defendant Two (Optional)" data-smartpaste-description="This field is for a second defendant if applicable. Leave blank if there is only one defendant." asp-for="DefendantTwoName" FloatLabelType="Auto" ejs-for="@Model.DefendantTwoName"></ejs-textbox>
+                    </div>
+                    <span asp-validation-for="DefendantTwoName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-textbox id="DefendantRepLawfirmName" type="text" placeholder="Defendant Representative Law Firm Name"
+                                 data-smartpaste-description="This field is for the first Defendant representative law firm name. If the clipboard contains 2 representatives of defendant, paste the llc/lpa/the firm name of the first attorney/rep here (remove any address details)"
+                                 asp-for="DefendantRepLawfirmName" FloatLabelType="Auto" ejs-for="@Model.DefendantRepLawfirmName">
+                    </ejs-textbox>
+                    <span asp-validation-for="DefendantRepLawfirmName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <div id="defendantNameGroup">
+                        <ejs-textbox id="defendantRepName" type="text" placeholder="Defendant Representative Name 1" data-smartpaste-description="This field is for the first Defendant representative (typically an attorney). If the name of the attorney is available, paste it here. If the attorney name is missing, paste the name of the law firm representing the Defendant. If there's no representative, leave blank. Remove any address details." asp-for="DefendantRepName" FloatLabelType="Auto" ejs-for="@Model.DefendantRepName"></ejs-textbox>
+                    </div>
+                    <span asp-validation-for="DefendantRepName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <div id="defendantNameGroup">
+                        <ejs-textbox id="defendantRep2Name" type="text" placeholder="Defendant Representative Name 2" data-smartpaste-description="This field is for the second Defendant representative. If the first representative's name is missing, paste the name of the second representative or law firm. The field may be left blank if no second representative exists. Remove any address details." asp-for="DefendantRep2Name" FloatLabelType="Auto" ejs-for="@Model.DefendantRep2Name"></ejs-textbox>
+                    </div>
+                    <span asp-validation-for="DefendantRep2Name" class="text-danger"></span>
+                </div>
+
+
+                @if (ViewBag.FirstLoad)
+                {
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-dropdownlist id="hearingDateDropdown" name="HearingId" change="onHearingDateChangeCheck" placeholder="Hearing Date" FloatLabelType="Auto" ejs-for="@Model.HearingId">
+                            <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+                        </ejs-dropdownlist>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-dropdownlist id="hearingDateDropdown" name="HearingId" dataSource="@ViewBag.HearingDatesData" placeholder="Hearing Date" FloatLabelType="Auto" ejs-for="@Model.HearingId">
+                            <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+                        </ejs-dropdownlist>
+                    </div>
+                }
+
+                <div class="form-group mb-3" style="text-align:left;">
+                    <label for="additionalDocuments">Upload Additional Documents (Optional):</label>
+                    <ejs-uploader id="additionalDocuments" name="AdditionalDocuments" removing="onremove" multiple="true" placeholder="Upload Additional Documents" FloatLabelType="Always" allowedextensions=".pdf"></ejs-uploader>
+                    <ejs-checkbox id="checkBox" label="Check eligibility using AI" checked="false" onclick="checkEligibility()"></ejs-checkbox>
+                    <span asp-validation-for="AdditionalDocuments" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 validation-gap">
+                    <ejs-dropdownlist id="caseStatusDropdown" required="required" name="CaseStatus" data-smartpaste-description="Do NOT update this value AT ALL" change="onCaseStatusChangeCheckHearingDate" dataSource="@ViewBag.CaseStatusData" value="@Model.CaseStatus" placeholder="Case Status (required)" FloatLabelType="Auto" ejs-for="@Model.CaseStatus">
+                        <e-dropdownlist-fields text="Text" value="Value"></e-dropdownlist-fields>
+                    </ejs-dropdownlist>
+                    <span asp-validation-for="CaseStatus" class="text-danger"></span>
+                </div>
+
+                 <input type="hidden" id="eligibilityFlag" name="isEligibilityChecked" value="false" />
+
+                <div class="form-group mb-3 d-flex justify-content-between">
+                    <button onclick="location.href='@Url.Action("Index")'" class="btn btn-secondary">Back to List</button>
+                    <button type="submit" id="submitButton" value="Create" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+} 
+
+<script>
+    var initialHearingIdValue = "@Model.HearingId";
+    var initialCaseStatusValue = "@Model.CaseStatus";
+    var hearingDatesUrl= '@Url.Action("GetHearingDates", "Cases")';
+ 
+</script>
+
+
+
+<style>
+    h1{
+        text-align:center !important;
+    }
+</style>

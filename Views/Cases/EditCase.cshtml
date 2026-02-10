@@ -1,0 +1,154 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.CcdpCaseViewModel
+
+@{
+    ViewData["Title"] = "Edit Case";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div id="customAlert" class="popup-alert popup-alert-error" style="display: none;" role="alert">
+    <button class="close-btn" onclick="closeAlert()">&times;</button>
+    <span id="alertMessage"></span>
+</div>
+
+
+<div class="content">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <!-- Change to col-md-12 for full width -->
+            <input type="hidden" asp-for="CaseId" />
+
+            @{
+                var defFirst = string.Empty;
+                var defLast = string.Empty;
+                if (!string.IsNullOrEmpty(Model.DefendantName))
+                {
+                    var parts = Model.DefendantName.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 0) defFirst = parts[0];
+                    if (parts.Length > 1) defLast = parts[parts.Length - 1];
+                }
+            }
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox
+                            id="caseDisplayName"
+                            type="text"
+                            FloatLabelType="Auto"
+                            placeholder="Case"
+                            value="@(string.IsNullOrWhiteSpace(Model.CourtCaseNumber)
+                                ? "<<No Case>>"
+                                : string.IsNullOrWhiteSpace(Model.DefendantName)
+                                    ? Model.CourtCaseNumber
+                                    : Model.CourtCaseNumber + " " + Model.DefendantName)"
+                            readonly>
+                        </ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="filingDate" value="@Model.FilingDate.ToString("yyyy-MM-dd")" format="yyyy-MM-dd" placeholder="Filing Date" asp-for="FilingDate" floatLabelType="Auto" readonly></ejs-textbox>
+
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="plaintiffName" type="text" placeholder="Plaintiff Name" asp-for="PlaintiffName" floatLabelType=Auto value="@Model.PlaintiffName" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="plaintiffRepName" type="text" placeholder="Plaintiff Rep Name 1" asp-for="PlaintiffRepName" floatLabelType=Auto value="@Model.PlaintiffRepName" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="defendantName" type="text" placeholder="Defendant Name" asp-for="DefendantName" floatLabelType=Auto value="@Model.DefendantName" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="defendantTwoName" type="text" placeholder="Defendant Two Name" asp-for="DefendantTwoName" floatLabelType=Auto value="@Model.DefendantTwoName" readonly></ejs-textbox>
+                    </div>
+
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="defendantRepName" type="text" placeholder="Defendant Rep Name 1" asp-for="DefendantRepName" floatLabelType=Auto value="@Model.DefendantRepName" readonly></ejs-textbox>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="caseStatusDropdown" name="CaseStatus" floatLabelType=Auto value="@ViewBag.CaseStatusValue.Text.ToUpper()" asp-for="CaseStatus" placeholder="Case Status" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="hearingDateDropdown" name="HearingId" floatLabelType=Auto value="@((Model.HearingId == null) ? Model.HearingId : ViewBag.HearingIdValue?.Text)" asp-for="HearingId" placeholder="Hearing Date and Time" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="plaintiffRepLawFirmName" type="text" placeholder="Plaintiff Rep Law Firm Name" asp-for="PlaintiffRepLawfirmName" floatLabelType=Auto value="@Model.PlaintiffRepLawfirmName" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="plaintiffRep2Name" type="text" placeholder="Plaintiff Rep Name 2" asp-for="PlaintiffRep2Name" floatLabelType=Auto value="@Model.PlaintiffRep2Name" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="defendantRepLawfirmName" type="text" placeholder="Defendant Rep Law Firm Name" asp-for="DefendantRepLawfirmName" floatLabelType=Auto value="@Model.DefendantRepLawfirmName" readonly></ejs-textbox>
+                    </div>
+
+                    <div class="form-group mb-3 validation-gap">
+                        <ejs-textbox id="defendantRep2Name" type="text" placeholder="Defendant Rep Name 2" asp-for="DefendantRep2Name" floatLabelType=Auto value="@Model.DefendantRep2Name" readonly></ejs-textbox>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="form-group mb-3 validation-gap">
+                <div style="text-align:left; font-size:14px">The latest comment is:  @Html.Raw(Model.CaseComment ?? "None")</div>
+            </div>
+
+
+            <div class="align">
+                <button type="button" id="submitButton" value="Edit Case" class="btn btn-primary">Edit Case</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+     //All functions in cases.js
+    var caseId = '@Model.CaseId';
+    var editCaseUrl =  '@Url.Action("EditCase", "Cases")';
+
+</script>
+
+<script src="~/js/cases.js" asp-append-version="true"></script>
+
+<style>
+    .content {
+        margin-top: 160px !important;
+    }
+
+    .align {
+        left: 0;
+    }
+
+    .e-input {
+        text-align: left; /* Aligns text to the left */
+    }
+</style>

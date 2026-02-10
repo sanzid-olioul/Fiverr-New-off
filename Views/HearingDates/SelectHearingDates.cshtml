@@ -1,0 +1,49 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.ConciliationHearingDateViewModel>
+
+@{
+    ViewData["Title"] = "Select Hearing Dates";
+
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+@{
+    var editParams = new { format = "MMM dd yyyy hh:mm a" };
+}
+
+<div class="content">
+    <h1>Select Hearing Dates</h1>
+    <form id="dateForm" method="post" action="@Url.Action("SelectHearingDates", "HearingDates")">
+        
+        <div class="d-flex align-items-start">
+            <ejs-calendar id="calendar" style="max-width:400px !important; margin-right:20px;margin-left:10px;" isMultiSelection="true" change="onDateChange"></ejs-calendar>
+        <!-- Syncfusion Grid -->
+            <div id="gridContainer" style="max-width:450px">
+                    <ejs-grid id="hearingGrid" allowPaging="true" allowSorting="true" dataSource="@Model" toolbar="@(new List<string>() {"Edit", "Delete", "Cancel", "Update" })">
+                        <e-grid-editSettings allowDeleting="true" allowEditing="true"></e-grid-editSettings>
+                    <e-grid-columns>
+                            <e-grid-column field="HearingId" visible=false></e-grid-column>
+                            <e-grid-column field="HearingDttm" headerText="Hearing Date and Time" textAlign="Center" editType="datetimepickeredit" format="MMM dd, yyyy hh:mm a" width="200"></e-grid-column>
+                    </e-grid-columns>
+                </ejs-grid>
+                <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                    <input type="submit" value="Submit" class="btn btn-primary" />
+                </div>
+            </div>
+        
+        </div>
+
+        <input type="hidden" name="selectedDatesAndTimes" id="selectedDatesAndTimes" />
+
+    </form>
+</div>
+

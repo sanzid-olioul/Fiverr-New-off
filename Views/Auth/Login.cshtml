@@ -1,0 +1,83 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var sessionExpiredMessage = TempData["SessionExpiredMessage"] as string;
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+<div class="container mt-5">
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="popup-alert popup-alert-@messageType
+                    " role="alert">
+            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            @message
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(sessionExpiredMessage))
+    {
+        <div class="popup-alert popup-alert-info" role="alert">
+            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            @sessionExpiredMessage
+        </div>
+    }
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4 col-sm-6 col-12">
+                <h2 class="text-center mb-4">Login</h2>
+                <form method="post" asp-action="Login" asp-controller="Auth" class="bg-light p-4 border rounded shadow text-center">
+                    <div class="form-group">
+                        <br />
+                        <label for="username">Username</label>
+                        <ejs-textbox type="text" class="form-control" id="username" name="UserName" placeholder="Enter your username" />
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <ejs-textbox type="password" class="form-control" id="password" name="Password" placeholder="Enter your password" />
+                    </div>
+                    <br />
+                    <button type="submit" class="btn btn-primary center">Login</button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <a href="@Url.Action("ForgotPassword", "Auth")">Forgot your password?</a>
+        </div>
+    </div>
+  
+</div>
+<style>
+    .btn {
+        background-color: #16405d;
+        color: #fff; 
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn:hover {
+            background-color: #0f5a8e; /* Darker shade on hover */
+        }
+
+
+    form {
+        transition: box-shadow 0.3s;
+    }
+
+        form:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+</style>

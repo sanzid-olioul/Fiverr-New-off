@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Verify Reset Code";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType
+            " role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+<div class="container mt-5">
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h4 class="text-center mb-4">Enter your Username or Email and hit Send Code</h4>
+                <form method="post" asp-action="VerifyResetCode" asp-controller="Auth" class="bg-light p-4 border rounded shadow text-center">
+                    <div class="form-group">
+                        <ejs-textbox type="text" class="form-control" id="sentResetCode" name="resetCode" floatLabelType="Auto" placeholder="Enter the 6 digit Code" />
+                    </div>
+                    <br />
+                    <button type="submit" class="btn btn-primary btn-block center">Verify Code</button>
+                </form>
+            </div>
+        </div>
+    </div>
+  
+</div>
+<style>
+    form {
+        transition: box-shadow 0.3s;
+    }
+
+        form:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+</style>

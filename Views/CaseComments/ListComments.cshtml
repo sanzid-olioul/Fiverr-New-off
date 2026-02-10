@@ -1,0 +1,99 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CaseCommentViewModel>
+
+@{
+    ViewData["Title"] = "Comments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType
+    " role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+<div class="content">
+
+    @{
+        List<object> GridCommands = new List<object>();
+        GridCommands.Add(new
+        {
+            type = "Delete",
+            buttonOption = new
+            {
+                iconCss = "e-icons e-delete btnDelete",
+                cssClass = "e-flat"
+            }
+        });
+    }
+
+    @{
+
+        List<object> filterColumns = new List<object>();
+
+        filterColumns.Add(new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" });
+
+
+    }
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h4 style="margin: 0;">Case Comments</h4>
+        <div>
+            <a asp-action="AddComment" class="btn btn-success mb-3">Add New Comment</a>
+        </div>
+    </div>
+
+    <ejs-grid id="Grid" dataSource="@Model" commandClick="commandClick" toolbar="@(new List<string>() { "Search" })" showColumnMenu="true" allowFiltering="true" allowTextWrap="true" allowResizing="true" allowSorting="true" allowPaging="true">
+        <e-grid-filterSettings type="Excel" columns="filterColumns">
+        </e-grid-filterSettings>
+        <e-grid-pageSettings pageCount="5" pageSize="5" pageSizes="true" />
+        <e-grid-pagesettings pageSize="7"></e-grid-pagesettings>
+        <e-grid-columns>
+            <e-grid-column headerText="Actions" width="60" commands="GridCommands"></e-grid-column>
+            <e-grid-column field="CommentText" headerText="Comment" width="300"></e-grid-column>
+            <e-grid-column field="CreatedDttm" headerText="Comment Date" width="150" format="MMM dd, yyyy hh:mm a"></e-grid-column>
+            <e-grid-column field="RecordStatus" headerText="Status" width="100"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+
+    <!-- Hidden Form for Deletion -->
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteConfirmed", "CaseComments")" style="display: none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="commentId" id="commentId" />
+    </form>
+
+
+</div>
+
+<script>
+     var deleteConfirmedUrl = '@Url.Action("DeleteConfirmed", "CaseComments")';
+</script>
+
+<style>
+    .content {
+        margin-top: 120px !important;
+    }
+
+    .e-grid {
+        margin-top: 20px;
+        border: 1px solid #ddd; /* Border for grid */
+        border-radius: 5px;
+        overflow: hidden; /* Rounded corners */
+    }
+
+    .e-grid .e-headercell {
+        background-color: #f5f5f5;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .e-grid .e-rowcell {
+        padding: 10px;
+    }
+
+    }
+</style>

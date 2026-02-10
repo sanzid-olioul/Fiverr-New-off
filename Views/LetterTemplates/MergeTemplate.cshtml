@@ -1,0 +1,57 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.LetterTemplateViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Letter Template";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType
+        " role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+    <div class="content">
+            <form id="mergeTemplateForm" asp-action="MergeTemplate" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3 validation-gap">
+                    <select id="letterTemplateDropdown" asp-for="LetterTemplateId" required="required" class="form-control" onchange="updateDocType()" FloatLabelType="Auto" ejs-for="@Model.LetterTemplateId">
+                        <option value="">Select Template</option>
+                        @foreach (var template in Model.TemplatesList)
+                        {
+                            <option value="@template.LetterTemplateId" data-doc-type="@template.DocType" 
+                                    data-doc-type-domain-name="@template.DocTypeDomainName"
+                                    data-convert-to-pdf="@template.ConvertToPdf">
+                            @template.Name
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="LetterTemplateId" class="text-danger"></span>
+                </div>
+
+                <input type="hidden" asp-for="DocType" name="DocType" id="DocType" />
+                <input type="hidden" asp-for="DocTypeDomainName" name="DocTypeDomainName" id="DocTypeDomainName" />
+                <input type="hidden" asp-for="ConvertToPdf" name="ConvertToPdf" id="ConvertToPdf" value="false" />
+
+                <div class="mb-3 validation-gap">
+                    <ejs-textbox type="text" asp-for="Name" id="Name" required="required" class="form-control" placeholder="Enter Document Name" FloatLabelType="Auto" ejs-for="@Model.Name"/>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3" style="position:fixed;left:0;">
+                    <button type="submit" value="Merge and Save" class="btn btn-primary">Merge and Save</button>
+                </div>
+            </form>
+    </div>
+
+<style>
+    .content {
+        margin-top: 160px !important;
+    }
+</style>

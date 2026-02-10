@@ -1,0 +1,215 @@
+﻿@model IEnumerable<LancasterCreditCardDiversion.ViewModels.CaseDocumentViewModel>
+
+@{
+    ViewData["Title"] = "Case Documents";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert" data-has-message="true">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+else
+{
+    <div class="popup-alert" data-has-message="false" style="display: none;"></div>
+}
+
+<div id="overlay" class="overlay" style="display: none;"></div>
+<div id="showModal" class="popup-modal popup-alert-info" style="display: none;" role="alert">
+    <button class="close-btn" onclick="closeModal()">&times;</button>
+    <span id="modalMessage"></span>
+</div>
+
+<!-- PDF Viewer Modal -->
+<div id="pdfViewerModal" style="display:none; position:fixed; top:120px; left:0; right:0; bottom:0; background:white; z-index:1000; padding:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h4>Document Viewer</h4>
+        <button onclick="closePdfViewer()" class="btn btn-secondary">Close</button>
+    </div>
+    <ejs-pdfviewer id="pdfViewer" serviceUrl="https://ej2services.syncfusion.com/production/web-services/api/pdfviewer" style="height:calc(100vh - 200px);"></ejs-pdfviewer>
+</div>
+
+
+
+<div class="content">
+   
+    @{
+        List<object> GridCommands = new List<object>
+        {
+            new { type = "View", buttonOption = new { iconCss = "e-icons e-eye btnView", cssClass = "e-flat" } },
+            new { type = "Download", buttonOption = new { iconCss = "e-icons e-download btnDownload", cssClass = "e-flat" } },
+            new { type = "Edit", buttonOption = new { iconCss = "e-icons e-edit btnEdit", cssClass = "e-flat" } },
+            new { type = "Delete", buttonOption = new { iconCss = "e-icons e-delete btnDelete", cssClass = "e-flat" } }
+        };
+
+        List<object> filterColumns = new List<object>
+        {
+            new { field = "RecordStatus", matchCase = false, @operator = "equal", predicate = "and", value = "Active" }
+        };
+    }
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">Case Documents</h4>
+                <div>
+                    <a asp-action="UploadDocument" class="btn btn-success mb-3">Upload New Document</a>
+                </div>
+            </div>
+
+    <ejs-grid id="DocumentGrid" dataSource="@Model" toolbarClick="toolbarClick" allowExcelExport="true" excelQueryCellInfo="excelExportFormat" showColumnMenu="true" allowFiltering="true" allowSelection="true" frozenColumns="1" allowTextWrap="true" allowResizing="true" allowPaging="true" allowSorting="true" commandClick="commandClick" toolbarTemplate="#template">
+                <e-grid-filterSettings type="Excel" columns="filterColumns"></e-grid-filterSettings>
+                <e-grid-pageSettings pageCount="5" pageSize="10" pageSizes="true" />
+                <e-grid-selectionSettings persistSelection="true"></e-grid-selectionSettings>
+                <e-grid-columns>
+                    <e-grid-column type="checkbox" width="50"></e-grid-column>
+                    <e-grid-column field="DocId" isPrimaryKey="true" headerText="Document ID" width="80"></e-grid-column>
+                    <e-grid-column field="Name" headerText="Document Name" width="250"></e-grid-column>
+                    <e-grid-column field="DocType" headerText="Document Type" width="250"></e-grid-column>
+                    <e-grid-column field="DocDate" headerText="Date of Upload" width="150" format="MMM dd, yyyy hh:mm a"></e-grid-column>
+                    <e-grid-column headerText="Results" width="150" template="#resultsTemplate"></e-grid-column>
+                    <e-grid-column field="RecordStatus" headerText="Status" width="150"></e-grid-column>
+                    <e-grid-column headerText="View PDF" width="120" template="#viewPdfTemplate"> </e-grid-column>
+                    <e-grid-column headerText="Actions" width="150" commands="GridCommands" freeze="Right"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+
+        <div id="template">
+            <ejs-toolbar id="defaultToolbar" clicked="clickHandler">
+                <e-toolbar-items>
+                    <e-toolbar-item id="check" prefixIcon="e-circle-check" text="Check Eligibility"></e-toolbar-item>
+                    <e-toolbar-item id="queue" prefixIcon="e-thumbnail" text="Queue (@ViewBag.QueueCount)"></e-toolbar-item>
+                    <e-toolbar-item id="refresh" prefixIcon="e-refresh" text="Refresh"></e-toolbar-item>
+                    <e-toolbar-item id="excelexport" prefixIcon="e-export" text="Excel Export"></e-toolbar-item>
+                </e-toolbar-items>
+            </ejs-toolbar>
+        </div>
+   
+
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteConfirmed", "CaseDocs")" style="display: none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="docId" id="docId" />
+    </form>
+
+
+ <script id="resultsTemplate" type="text/x-template">
+     <span>
+         ${if(IsChecked)}
+             @* <span onclick="viewResult(${DocId})" style="cursor: pointer; color: blue; text-decoration: underline;">View Results</span> *@
+             <span onclick="viewResult(${DocId})" style="cursor: pointer; color: blue; text-decoration: underline;">View Results</span>
+         ${else}
+             <span style="color: gray;">Not Checked</span>
+         ${/if}
+     </span>
+
+ </script>
+
+<script id="viewPdfTemplate" type="text/x-template">
+    <button onclick="openPdfViewer(${DocId})" class="btn btn-sm btn-primary">
+        <i class="e-icons e-eye"></i> View
+    </button>
+</script>
+
+<script>
+   var downloadDocumentUrl = '@Url.Action("DownloadDocument", "CaseDocs")';
+    var viewDocumentUrl = '@Url.Action("ViewDocument", "CaseDocs")';
+    var editDocumentUrl = '@Url.Action("EditDocument", "CaseDocs")'; 
+   var deleteConfirmedUrl = '@Url.Action("DeleteConfirmed", "CaseDocs")'; 
+   var checkEligibilityUrl = '@Url.Action("CheckEligibility", "CaseDocs")';
+   var requestsListUrl = '@Url.Action("ListRequests", "EligibilityCheckRequests")';
+
+   function openPdfViewer(docId) {
+       const modal = document.getElementById('pdfViewerModal');
+       const pdfViewer = document.getElementById('pdfViewer').ej2_instances[0];
+       const url = viewDocumentUrl + '/' + docId;
+       
+       modal.style.display = 'block';
+       pdfViewer.load(url, null);
+   }
+
+   function closePdfViewer() {
+       const modal = document.getElementById('pdfViewerModal');
+       const pdfViewer = document.getElementById('pdfViewer').ej2_instances[0];
+       
+       pdfViewer.unload();
+       modal.style.display = 'none';
+   }
+
+   async function viewResult(docId) {
+    try {
+        const response = await fetch(`/CaseDocs/GetResultFromAI/${docId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            const formattedResults = formatResults(data.results, data.docName); 
+            showModal(formattedResults);
+        } else {
+            showAlert('No results found.');
+        }
+        } catch (error) {
+            showAlert('An error occurred while fetching results.');
+        }
+    }
+
+     function formatResults(markdown, documentName) {
+         const cleaned = markdown
+             .replace(/<\/?analysis[^>]*>/g, '')
+             .replace(/<\/?decision[^>]*>/g, '');
+
+         const html = marked.parse(cleaned);
+
+         return `
+         <div class="analysis-header">Eligibility Analysis</div>
+         <div class="doc-name">Documents: ${documentName}</div>
+         <div class="analysis-body">${html}</div>
+     `;
+     }
+
+      window.addEventListener('click', function (event) {
+         const modal = document.getElementById('showModal');
+         const overlay = document.getElementById('overlay');
+
+         if (modal.style.display === 'block' && !modal.contains(event.target) && !event.target.closest('.popup-modal')) {
+             closeModal();
+         }
+     });
+
+</script>
+
+<style>
+    #template{
+        text-align:left;
+    }
+
+    .analysis-header {
+        font-size: 24px; /* Adjust size as needed */
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-family: "Inter", sans-serif;
+    }
+
+    .doc-name {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-family: "Inter", sans-serif;
+    }
+
+    #maintext.main-content {
+        padding: 0px !important;
+    }
+
+    .content {
+        height: 100vh;
+        margin-top: 120px !important;
+        overflow-y: auto;
+    }
+
+</style></style> 

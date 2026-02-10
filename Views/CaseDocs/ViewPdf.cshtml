@@ -1,0 +1,18 @@
+﻿@using Syncfusion.EJ2.PdfViewer
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int documentId = (int)ViewBag.DocumentId;
+    string pdfUrl = Url.Action(
+        "StreamPdf",
+        "CaseDocs",
+        new { documentId = documentId }
+    )!;
+}
+
+<div style="height:85vh">
+    <ejs-pdfviewer id="pdfviewer"
+                   style="height:100%"
+                   documentPath="@pdfUrl"
+                   serviceUrl="">
+    </ejs-pdfviewer>
+</div>

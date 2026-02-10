@@ -1,0 +1,56 @@
+﻿@model LancasterCreditCardDiversion.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["Message"] as string;
+    var messageType = TempData["MessageType"] as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="popup-alert popup-alert-@messageType" role="alert">
+        <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        @message
+    </div>
+}
+
+<div class="content">
+    <h1>Create User</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+         <form id="createUserForm" method="post" asp-action="CreateUser">
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox id="UserName" name="UserName" required="required" placeholder="Enter Username" value="@Model.UserName" floatLabelType="Auto"></ejs-textbox>
+        </div>
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox id="FullName" name="FullName" required="required" placeholder="Enter Full Name" value="@Model.FullName" floatLabelType="Auto"></ejs-textbox>
+        </div>
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox id="Email" name="Email" required="required" placeholder="Enter Email" value="@Model.Email" floatLabelType="Auto"></ejs-textbox>
+        </div>
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox type="password" id="Password" name="PasswordHash" required="required" placeholder="Enter Password" floatLabelType="Auto"></ejs-textbox>
+        </div>
+
+        <div class="form-group mb-3 validation-gap">
+            <ejs-textbox type="password" id="ConfirmPassword" name="ConfirmPassword" required="required" placeholder="Confirm Password" floatLabelType="Auto"></ejs-textbox>
+        </div>
+
+        <div class="form-group mb-3 d-flex justify-content-between">
+            <button onclick="location.href='@Url.Action("ListUsers", "Users")'" class="btn btn-secondary">Back</button>
+            <button type="submit" value="Create User" class="btn btn-primary">Create User</button>
+        </div>
+    </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    h1 {
+        text-align: center !important;
+    }
+</style>

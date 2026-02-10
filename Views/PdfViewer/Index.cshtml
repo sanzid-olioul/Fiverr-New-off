@@ -1,0 +1,60 @@
+@using Syncfusion.EJ2.PdfViewer
+@addTagHelper *, Syncfusion.EJ2
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    Layout = null;
+    var resourceUrl = ViewBag.File as string;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Viewer - @resourceUrl</title>
+    <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet">
+    <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
+</head>
+<body style="margin:0; padding:0; overflow:hidden;">
+    @if (string.IsNullOrWhiteSpace(resourceUrl))
+    {
+        <div style="padding:20px;">
+            <div style="padding:15px; background:#fff3cd; border:1px solid #ffc107; border-radius:4px; color:#856404;">
+                No file specified. Please select a PDF file to view.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="position:absolute; top:15px; right:15px; z-index:1000;">
+            <button onclick="window.parent.closePdfModal()" style="padding:8px 16px; background:#6c757d; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:14px;">? Close</button>
+        </div>
+        
+        <iframe id="pdfFrame" 
+                src="@Url.Action("GetPdf", "PdfViewer", new { file = resourceUrl })" 
+                style="width:100%; height:100vh; border:0;"
+                onload="hideLoading()"
+                onerror="showError()">
+        </iframe>
+        
+        <div id="loadingMessage" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+            <div style="font-size:16px; color:#666;">Loading PDF...</div>
+            <div style="font-size:12px; color:#999; margin-top:8px;">@resourceUrl</div>
+        </div>
+    }
+    
+    <script>
+        function hideLoading() {
+            var loading = document.getElementById('loadingMessage');
+            if (loading) loading.style.display = 'none';
+        }
+        
+        function showError() {
+            var loading = document.getElementById('loadingMessage');
+            if (loading) {
+                loading.innerHTML = '<div style="color:#dc3545; font-size:16px;">Failed to load PDF</div><div style="font-size:12px; margin-top:8px;">File: @resourceUrl</div>';
+            }
+        }
+    </script>
+</body>
+</html>
