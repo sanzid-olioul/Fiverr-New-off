@@ -73,7 +73,7 @@ else
                     <e-grid-column field="DocDate" headerText="Date of Upload" width="150" format="MMM dd, yyyy hh:mm a"></e-grid-column>
                     <e-grid-column headerText="Results" width="150" template="#resultsTemplate"></e-grid-column>
                     <e-grid-column field="RecordStatus" headerText="Status" width="150"></e-grid-column>
-                    <e-grid-column headerText="View PDF" width="120" template="#viewPdfTemplate"> </e-grid-column>
+                    @* <e-grid-column headerText="View PDF" width="120" template="#viewPdfTemplate"> </e-grid-column> *@
                     <e-grid-column headerText="Actions" width="150" commands="GridCommands" freeze="Right"></e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
@@ -109,11 +109,11 @@ else
 
  </script>
 
-<script id="viewPdfTemplate" type="text/x-template">
+@* <script id="viewPdfTemplate" type="text/x-template">
     <button onclick="openPdfViewer(${DocId})" class="btn btn-sm btn-primary">
         <i class="e-icons e-eye"></i> View
     </button>
-</script>
+</script> *@
 
 <script>
    var downloadDocumentUrl = '@Url.Action("DownloadDocument", "CaseDocs")';
@@ -209,7 +209,7 @@ else
 
     .content {
         height: 100vh;
-        margin-top: 120px !important;
+        margin-top: 142px !important;
         overflow-y: auto;
     }
 

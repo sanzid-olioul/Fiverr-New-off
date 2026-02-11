@@ -72,9 +72,10 @@ if (controller === "CaseDocs" && action === "ListDocuments") {
 
             if (cmdType === 'View' || cmdType === 'view') {
                 // Open the viewer page (Syncfusion viewer) with the docId so the viewer page initializes and loads the PDF
-                const viewerUrl = '/PdfViewer?docId=' + encodeURIComponent(documentId);
-                const opened = window.open(viewerUrl, '_blank');
-                if (!opened) window.location.href = viewerUrl;
+                openPdfViewer(documentId);
+                //const viewerUrl = '/PdfViewer?docId=' + encodeURIComponent(documentId);
+                //const opened = window.open(viewerUrl, '_blank');
+                //if (!opened) window.location.href = viewerUrl;
                 return;
             }
             else if (cmdType === 'Download' || cmdType === 'download') {
